@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "supabase-moviematcher": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=YOUR_SUPABASE_PROJECT_REF"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "YOUR_SUPABASE_ACCESS_TOKEN"
+      }
+    },
+    "vercel-moviematcher": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "vercel-mcp",
+        "VERCEL_API_KEY=YOUR_VERCEL_API_KEY"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "build/**"
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # Code Quality
+    avoid_print: true
+    avoid_dynamic_calls: true
+    avoid_void_async: true
+    unawaited_futures: true
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+
+    # Performance
+    unnecessary_lambdas: true
+    use_key_in_widget_constructors: false  # Material 3 doesn't always need keys
+
+    # Safety
+    use_build_context_synchronously: true
+    always_declare_return_types: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+
+    # Style
+    prefer_single_quotes: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+
+    # Documentation (disabled for now, enable for production)
+    public_member_api_docs: false

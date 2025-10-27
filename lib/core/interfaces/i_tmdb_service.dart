@@ -1,0 +1,31 @@
+import '../errors/result.dart';
+
+/// Interface for TMDB Service - Enables dependency injection and testing
+abstract class ITmdbService {
+  Future<Result<Map<String, dynamic>>> fetchMovies({
+    required List<String> providers,
+    required List<String> genres,
+    required String maxCertification,
+    String genreMatchMode = 'or',
+    String? sessionId,
+    int page = 1,
+  });
+
+  String getPosterUrl(String? posterPath, {String size = 'w500'});
+
+  Future<void> prefetchNextPage({
+    required List<String> providers,
+    required List<String> genres,
+    required String maxCertification,
+    String genreMatchMode = 'or',
+    String? sessionId,
+    required int currentPage,
+  });
+
+  void clearCache();
+
+  Future<Result<String?>> fetchMovieTrailer(int movieId);
+  Future<Result<Map<String, dynamic>>> getMovieDetails(int movieId);
+  Future<Result<List<dynamic>>> searchMovies(String query);
+  Future<Result<Map<String, dynamic>>> getMovieCredits(int movieId);
+}
