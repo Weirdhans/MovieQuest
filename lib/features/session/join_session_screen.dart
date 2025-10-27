@@ -58,7 +58,7 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
               // Icon
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppTheme.phoenixGradient,
                 ),
@@ -84,7 +84,7 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppTheme.primaryGold.withOpacity(0.3),
+                      color: AppTheme.primaryGold.withValues(alpha: 0.3),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -119,7 +119,7 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppTheme.primaryGold.withOpacity(0.3),
+                      color: AppTheme.primaryGold.withValues(alpha: 0.3),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -159,7 +159,7 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
                   'Vraag de host om de sessie ID te delen',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -248,7 +248,7 @@ class _GradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryOrange.withOpacity(0.3),
+            color: AppTheme.primaryOrange.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 2,
           ),

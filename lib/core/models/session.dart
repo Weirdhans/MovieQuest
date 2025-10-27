@@ -1,16 +1,5 @@
 /// Session model - Represents a movie matching session
 class Session {
-  final String id;
-  final String hostUserId;
-  final List<String> streamingProviders;
-  final List<String> genres;
-  final String maxCertification;
-  final bool isActive;
-  final int totalMembers;
-  final int requiredVotes;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-
   const Session({
     required this.id,
     required this.hostUserId,
@@ -23,6 +12,17 @@ class Session {
     required this.createdAt,
     this.updatedAt,
   });
+
+  final String id;
+  final String hostUserId;
+  final List<String> streamingProviders;
+  final List<String> genres;
+  final String maxCertification;
+  final bool isActive;
+  final int totalMembers;
+  final int requiredVotes;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
 
   /// Create Session from Supabase JSON
   factory Session.fromJson(Map<String, dynamic> json) {

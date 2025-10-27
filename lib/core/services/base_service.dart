@@ -57,7 +57,7 @@ abstract class BaseService {
             'maxRetries': maxRetries,
           },
         );
-        await Future.delayed(retryDelay);
+        await Future<void>.delayed(retryDelay);
       }
     }
 

@@ -5,6 +5,7 @@ import '../../shared/services/utils_service.dart';
 import '../interfaces/i_supabase_service.dart';
 import '../interfaces/i_tmdb_service.dart';
 import '../interfaces/i_utils_service.dart';
+import '../utils/dev_log.dart';
 
 // ============================================
 // SERVICE PROVIDERS (Singletons)
@@ -71,24 +72,24 @@ final sessionMembersProvider = FutureProvider.autoDispose<List<Map<String, dynam
   // Watch movie index to refresh members when swipes happen
   ref.watch(currentMovieIndexProvider);
 
-  print('sessionMembersProvider: sessionId=$sessionId');
+  devLog('sessionMembersProvider: sessionId=$sessionId');
 
   if (sessionId == null) {
-    print('sessionMembersProvider: No session ID, returning empty list');
+    devLog('sessionMembersProvider: No session ID, returning empty list');
     return [];
   }
 
   final supabaseService = ref.watch(supabaseServiceProvider);
-  print('sessionMembersProvider: Calling getMemberSwipeCounts...');
+  devLog('sessionMembersProvider: Calling getMemberSwipeCounts...');
   final result = await supabaseService.getMemberSwipeCounts(sessionId);
 
   return result.when(
     success: (members) {
-      print('sessionMembersProvider: Success! Got ${members.length} members');
+      devLogSuccess('sessionMembersProvider: Got ${members.length} members');
       return members;
     },
     error: (error) {
-      print('sessionMembersProvider: Error! $error');
+      devLogError('sessionMembersProvider', error);
       return [];
     },
   );

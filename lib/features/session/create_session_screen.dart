@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
@@ -135,7 +137,7 @@ class _CreateSessionScreenState extends ConsumerState<CreateSessionScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.surfaceDark,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.primaryGold.withOpacity(0.3)),
+                    border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     requiredVotes.toString(),
@@ -172,11 +174,11 @@ class _CreateSessionScreenState extends ConsumerState<CreateSessionScreen> {
                 fillColor: AppTheme.surfaceDark,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.primaryGold.withOpacity(0.3)),
+                  borderSide: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.primaryGold.withOpacity(0.3)),
+                  borderSide: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -194,7 +196,7 @@ class _CreateSessionScreenState extends ConsumerState<CreateSessionScreen> {
             else
               _GradientButton(
                 onPressed: _canCreateSession(selectedProviders, selectedGenres)
-                    ? () => _createSession()
+                    ? _createSession
                     : null,
                 child: const Text(
                   'Sessie Aanmaken',
@@ -285,7 +287,7 @@ class _CreateSessionScreenState extends ConsumerState<CreateSessionScreen> {
 
           // Navigate to swipe screen
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/swipe');
+            unawaited(Navigator.pushReplacementNamed(context, '/swipe'));
           }
         },
         error: (error) {
@@ -329,7 +331,7 @@ class _FilterChip extends StatelessWidget {
       checkmarkColor: Colors.black,
       backgroundColor: AppTheme.surfaceDark,
       side: BorderSide(
-        color: selected ? AppTheme.primaryGold : AppTheme.primaryGold.withOpacity(0.3),
+        color: selected ? AppTheme.primaryGold : AppTheme.primaryGold.withValues(alpha: 0.3),
         width: selected ? 2 : 1,
       ),
       labelStyle: TextStyle(
@@ -362,7 +364,7 @@ class _GradientButton extends StatelessWidget {
         boxShadow: isEnabled
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryOrange.withOpacity(0.3),
+                  color: AppTheme.primaryOrange.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),

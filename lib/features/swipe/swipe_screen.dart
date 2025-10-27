@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,12 +7,13 @@ import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:confetti/confetti.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/providers.dart';
 import '../../core/models/movie.dart';
 import '../../core/utils/dev_log.dart';
+import '../../core/interfaces/i_tmdb_service.dart';
 import '../../shared/widgets/members_button.dart';
-import 'package:confetti/confetti.dart';
 
 /// Swipe Screen - Main movie swiping interface
 class SwipeScreen extends ConsumerStatefulWidget {
@@ -25,7 +28,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
   final ConfettiController _confettiController = ConfettiController(duration: const Duration(seconds: 3));
 
   bool _isInitialized = false;
-  List<Movie> _movies = [];
+  final List<Movie> _movies = [];
   int _currentPage = 1;
   bool _isLoadingMore = false;
   int _currentCardIndex = 0;
@@ -63,7 +66,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     final supabaseService = ref.read(supabaseServiceProvider);
     final sessionResult = await supabaseService.getSession(sessionId);
 
-    sessionResult.when(
+    await sessionResult.when(
       success: (session) async {
         final providers = (session['streaming_providers'] as List<dynamic>).map((e) => e.toString()).toList();
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
@@ -170,7 +173,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
 
     // Load more movies if running low
     if (index >= _movies.length - 3 && !_isLoadingMore) {
-      _loadMoreMovies();
+      unawaited(_loadMoreMovies());
     }
   }
 
@@ -210,7 +213,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     final supabaseService = ref.read(supabaseServiceProvider);
     final sessionResult = await supabaseService.getSession(sessionId);
 
-    sessionResult.when(
+    await sessionResult.when(
       success: (session) async {
         final providers = (session['streaming_providers'] as List<dynamic>).map((e) => e.toString()).toList();
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
@@ -347,7 +350,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     devLog('Session link generated: $joinUrl');
 
     // Show dialog with link and copy button
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceDark,
@@ -372,7 +375,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
               decoration: BoxDecoration(
                 color: Colors.black26,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.primaryGold.withOpacity(0.3)),
+                border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
               ),
               child: SelectableText(
                 joinUrl,
@@ -451,7 +454,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     final movie = _movies[_currentCardIndex];
     final tmdbService = ref.read(tmdbServiceProvider);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => _MovieDetailsDialog(movie: movie, tmdbService: tmdbService),
     );
@@ -464,13 +467,13 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     final tmdbService = ref.read(tmdbServiceProvider);
 
     // Show loading dialog
-    showDialog(
+    unawaited(showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(
         child: CircularProgressIndicator(),
       ),
-    );
+    ));
 
     // Fetch trailer
     final result = await tmdbService.fetchMovieTrailer(movie.id);
@@ -506,7 +509,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       ),
     );
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
@@ -530,7 +533,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                     topRight: Radius.circular(12),
                   ),
                   border: Border(
-                    bottom: BorderSide(color: AppTheme.primaryGold.withOpacity(0.3)),
+                    bottom: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
                   ),
                 ),
                 child: Row(
@@ -659,7 +662,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Pas je filters aan',
-                    style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.6)),
+                    style: TextStyle(fontSize: 16, color: Colors.white.withValues(alpha: 0.6)),
                   ),
                 ],
               ),
@@ -682,7 +685,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                         onSwipeEnd: (previousIndex, targetIndex, activity) {
                           // Update current card index
                           setState(() {
-                            _currentCardIndex = targetIndex ?? previousIndex + 1;
+                            _currentCardIndex = targetIndex;
                           });
 
                           // Check if it's an actual swipe (not unswipe or cancel)
@@ -795,7 +798,7 @@ class _MovieCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -833,8 +836,8 @@ class _MovieCard extends ConsumerWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.95),
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.black.withValues(alpha: 0.95),
                   ],
                   stops: const [0.5, 0.8, 1.0],
                 ),
@@ -899,7 +902,7 @@ class _MovieCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -917,7 +920,7 @@ class _MovieCard extends ConsumerWidget {
 /// Movie Details Dialog Widget
 class _MovieDetailsDialog extends ConsumerStatefulWidget {
   final Movie movie;
-  final dynamic tmdbService;
+  final ITmdbService tmdbService;
 
   const _MovieDetailsDialog({
     required this.movie,
@@ -992,7 +995,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                     icon: const Icon(Icons.close, color: Colors.white),
                     onPressed: () => Navigator.pop(context),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.black.withOpacity(0.5),
+                      backgroundColor: Colors.black.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -1056,7 +1059,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                       const Center(child: CircularProgressIndicator())
                     else if (_trailerUrl != null)
                       ElevatedButton.icon(
-                        onPressed: () => _showTrailer(),
+                        onPressed: _showTrailer,
                         icon: const Icon(Icons.play_arrow),
                         label: const Text('Bekijk Trailer'),
                         style: ElevatedButton.styleFrom(
@@ -1070,7 +1073,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                       Text(
                         'Geen trailer beschikbaar',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 14,
                         ),
                       ),
@@ -1099,7 +1102,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
 
     if (!mounted) return;
 
-    showDialog(
+    unawaited(showDialog<void>(
       context: context,
       builder: (dialogContext) => Dialog(
         backgroundColor: Colors.black,
@@ -1113,7 +1116,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceDark,
                   border: Border(
-                    bottom: BorderSide(color: AppTheme.primaryGold.withOpacity(0.3)),
+                    bottom: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
                   ),
                 ),
                 child: Row(
@@ -1157,7 +1160,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
     ).then((_) {
       // Cleanup controller when dialog is dismissed
       controller.close();
-    });
+    }));
   }
 }
 
@@ -1187,7 +1190,7 @@ class _ActionButton extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             border: Border.all(color: color, width: 3),
           ),
           child: IconButton(
@@ -1239,7 +1242,7 @@ class _UndoButton extends StatelessWidget {
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 border: Border.all(
                   color: color,
                   width: 3,

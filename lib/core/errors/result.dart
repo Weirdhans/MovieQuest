@@ -3,9 +3,6 @@ import 'app_error.dart';
 /// Result type for operations that can succeed or fail
 /// Replaces throwing exceptions with explicit error handling
 class Result<T> {
-  final T? _data;
-  final AppError? _error;
-
   const Result.success(T data)
       : _data = data,
         _error = null;
@@ -14,23 +11,28 @@ class Result<T> {
       : _data = null,
         _error = error;
 
+  final T? _data;
+  final AppError? _error;
+
   bool get isSuccess => _error == null;
   bool get isError => _error != null;
 
   T get data {
-    if (_data == null) {
+    final value = _data;
+    if (value == null) {
       throw StateError('No data available - Result is an error');
     }
-    return _data!;
+    return value;
   }
 
   T? get dataOrNull => _data;
 
   AppError get error {
-    if (_error == null) {
+    final err = _error;
+    if (err == null) {
       throw StateError('No error available - Result is a success');
     }
-    return _error!;
+    return err;
   }
 
   AppError? get errorOrNull => _error;

@@ -21,15 +21,15 @@ class AppConstants {
 
 /// Streaming Provider Model
 class StreamingProvider {
-  final String id;
-  final String name;
-  final bool hasExtraCosts;
-
   const StreamingProvider({
     required this.id,
     required this.name,
     this.hasExtraCosts = false,
   });
+
+  final String id;
+  final String name;
+  final bool hasExtraCosts;
 }
 
 /// Categorized Streaming Providers (same as web version)
@@ -69,13 +69,13 @@ class StreamingProviders {
 
 /// Genre Model
 class Genre {
-  final String id;
-  final String name;
-
   const Genre({
     required this.id,
     required this.name,
   });
+
+  final String id;
+  final String name;
 }
 
 /// Film Genres (TMDB IDs - same as web version)
@@ -112,13 +112,13 @@ class Genres {
 
 /// Certification Model (Kijkwijzer - Netherlands)
 class Certification {
-  final String value;
-  final String label;
-
   const Certification({
     required this.value,
     required this.label,
   });
+
+  final String value;
+  final String label;
 }
 
 /// Age Certifications (Netherlands)

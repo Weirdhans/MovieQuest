@@ -1,13 +1,5 @@
 /// SessionMember model - Represents a member of a session
 class SessionMember {
-  final String id;
-  final String sessionId;
-  final String userId;
-  final String? userName;
-  final DateTime joinedAt;
-  final int swipeCount;
-  final bool isHost;
-
   const SessionMember({
     required this.id,
     required this.sessionId,
@@ -17,6 +9,14 @@ class SessionMember {
     this.swipeCount = 0,
     this.isHost = false,
   });
+
+  final String id;
+  final String sessionId;
+  final String userId;
+  final String? userName;
+  final DateTime joinedAt;
+  final int swipeCount;
+  final bool isHost;
 
   /// Create SessionMember from Supabase JSON
   factory SessionMember.fromJson(Map<String, dynamic> json) {

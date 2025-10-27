@@ -142,7 +142,7 @@ class _StatCard extends StatelessWidget {
         color: AppTheme.darkBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.neutralGray.withOpacity(0.3),
+          color: AppTheme.neutralGray.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -166,7 +166,7 @@ class _StatCard extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -196,7 +196,7 @@ class _LikeRatioCard extends StatelessWidget {
         color: AppTheme.darkBackground,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.neutralGray.withOpacity(0.3),
+          color: AppTheme.neutralGray.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -220,7 +220,7 @@ class _LikeRatioCard extends StatelessWidget {
             'Like Ratio',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -231,7 +231,7 @@ class _LikeRatioCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: totalSwipes > 0 ? likePercentage / 100 : 0,
               minHeight: 6,
-              backgroundColor: AppTheme.neutralGray.withOpacity(0.3),
+              backgroundColor: AppTheme.neutralGray.withValues(alpha: 0.3),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 Color(0xFF22C55E), // Green color for likes
               ),
@@ -242,7 +242,7 @@ class _LikeRatioCard extends StatelessWidget {
             '$likeCount / $totalSwipes',
             style: TextStyle(
               fontSize: 10,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
           ),
         ],

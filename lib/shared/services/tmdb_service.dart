@@ -32,7 +32,7 @@ class TmdbService extends BaseService implements ITmdbService {
       int t = (seed ^ (seed >>> 15)) & 0xFFFFFFFF;
       t = (t | 1) & 0xFFFFFFFF;
       t = (t + ((t ^ (t >>> 7)) & 0x3FFFFFFF)) & 0xFFFFFFFF;
-      int result = ((t ^ (t >>> 14)) >>> 0) & 0xFFFFFFFF;
+      final int result = ((t ^ (t >>> 14)) >>> 0) & 0xFFFFFFFF;
       return result / 4294967296;
     };
   }
@@ -40,6 +40,7 @@ class TmdbService extends BaseService implements ITmdbService {
   /// Shuffle array with seeded random (Fisher-Yates shuffle)
   static List<T> _seededShuffle<T>(List<T> array, String seed) {
     // Convert string seed to numeric seed
+    @override
     int numericSeed = 0;
     for (int i = 0; i < seed.length; i++) {
       numericSeed = ((numericSeed << 5) - numericSeed + seed.codeUnitAt(i)) & 0xFFFFFFFF;
@@ -60,6 +61,7 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Fetch movies from TMDB Discover API with filters
+  @override
   Future<Result<Map<String, dynamic>>> fetchMovies({
     required List<String> providers,
     required List<String> genres,
@@ -109,7 +111,7 @@ class TmdbService extends BaseService implements ITmdbService {
         }
 
         // Make API request
-        final response = await _dio.get('/discover/movie', queryParameters: params);
+        final response = await _dio.get<dynamic>('/discover/movie', queryParameters: params);
 
         if (response.statusCode == 200) {
           final data = response.data as Map<String, dynamic>;
@@ -154,6 +156,7 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Prefetch next page of movies (for smooth pagination)
+  @override
   Future<void> prefetchNextPage({
     required List<String> providers,
     required List<String> genres,
@@ -176,6 +179,7 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Clear movies cache
+  @override
   void clearCache() {
     _moviesCache.clear();
     devLogSuccess('Movies cache geleegd');
@@ -189,11 +193,12 @@ class TmdbService extends BaseService implements ITmdbService {
   /// 4. Any English Trailer
   /// 5. English Teaser
   /// 6. First YouTube video (any type)
+  @override
   Future<Result<String?>> fetchMovieTrailer(int movieId) async {
     return executeWithErrorHandling(
       () async {
         // Fetch ALL videos (without language filter for maximum results)
-        final response = await _dio.get(
+        final response = await _dio.get<dynamic>(
           '/movie/$movieId/videos',
           queryParameters: {
             'api_key': EnvConfig.tmdbApiKey,
@@ -225,49 +230,41 @@ class TmdbService extends BaseService implements ITmdbService {
           );
 
           // Priority 2: English Official Trailer
-          if (trailer == null) {
-            trailer = videos.cast<Map<String, dynamic>?>().firstWhere(
-              (v) =>
-                  v != null &&
-                  v['iso_639_1'] == 'en' &&
-                  v['type'] == 'Trailer' &&
-                  v['official'] == true,
-              orElse: () => null,
-            );
-          }
+          trailer ??= videos.cast<Map<String, dynamic>?>().firstWhere(
+            (v) =>
+                v != null &&
+                v['iso_639_1'] == 'en' &&
+                v['type'] == 'Trailer' &&
+                v['official'] == true,
+            orElse: () => null,
+          );
 
           // Priority 3: Any Dutch Trailer
-          if (trailer == null) {
-            trailer = videos.cast<Map<String, dynamic>?>().firstWhere(
-              (v) =>
-                  v != null &&
-                  v['iso_639_1'] == 'nl' &&
-                  v['type'] == 'Trailer',
-              orElse: () => null,
-            );
-          }
+          trailer ??= videos.cast<Map<String, dynamic>?>().firstWhere(
+            (v) =>
+                v != null &&
+                v['iso_639_1'] == 'nl' &&
+                v['type'] == 'Trailer',
+            orElse: () => null,
+          );
 
           // Priority 4: Any English Trailer
-          if (trailer == null) {
-            trailer = videos.cast<Map<String, dynamic>?>().firstWhere(
-              (v) =>
-                  v != null &&
-                  v['iso_639_1'] == 'en' &&
-                  v['type'] == 'Trailer',
-              orElse: () => null,
-            );
-          }
+          trailer ??= videos.cast<Map<String, dynamic>?>().firstWhere(
+            (v) =>
+                v != null &&
+                v['iso_639_1'] == 'en' &&
+                v['type'] == 'Trailer',
+            orElse: () => null,
+          );
 
           // Priority 5: English Teaser
-          if (trailer == null) {
-            trailer = videos.cast<Map<String, dynamic>?>().firstWhere(
-              (v) =>
-                  v != null &&
-                  v['iso_639_1'] == 'en' &&
-                  v['type'] == 'Teaser',
-              orElse: () => null,
-            );
-          }
+          trailer ??= videos.cast<Map<String, dynamic>?>().firstWhere(
+            (v) =>
+                v != null &&
+                v['iso_639_1'] == 'en' &&
+                v['type'] == 'Teaser',
+            orElse: () => null,
+          );
 
           // Priority 6: First YouTube video (any type)
           if (trailer == null && videos.isNotEmpty) {
@@ -294,10 +291,11 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Get movie details
+  @override
   Future<Result<Map<String, dynamic>>> getMovieDetails(int movieId) async {
     return executeWithErrorHandling(
       () async {
-        final response = await _dio.get(
+        final response = await _dio.get<dynamic>(
           '/movie/$movieId',
           queryParameters: {
             'api_key': EnvConfig.tmdbApiKey,
@@ -320,10 +318,11 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Search movies by title
+  @override
   Future<Result<List<dynamic>>> searchMovies(String query) async {
     return executeWithErrorHandling(
       () async {
-        final response = await _dio.get(
+        final response = await _dio.get<dynamic>(
           '/search/movie',
           queryParameters: {
             'api_key': EnvConfig.tmdbApiKey,
@@ -349,10 +348,11 @@ class TmdbService extends BaseService implements ITmdbService {
   }
 
   /// Get movie credits (cast & crew)
+  @override
   Future<Result<Map<String, dynamic>>> getMovieCredits(int movieId) async {
     return executeWithErrorHandling(
       () async {
-        final response = await _dio.get(
+        final response = await _dio.get<dynamic>(
           '/movie/$movieId/credits',
           queryParameters: {
             'api_key': EnvConfig.tmdbApiKey,

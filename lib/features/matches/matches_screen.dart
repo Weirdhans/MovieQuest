@@ -7,6 +7,8 @@ import '../../core/models/match.dart';
 import '../../core/models/partial_match.dart';
 import '../../core/models/movie.dart';
 import '../../core/models/session_stats.dart';
+import '../../core/utils/dev_log.dart';
+import '../../core/errors/app_error.dart';
 import 'widgets/session_stats_card.dart';
 
 /// Matches Screen - Display all matched movies with tabs for full and partial matches
@@ -135,7 +137,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
                   'Begin met swipen om matches te vinden!',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -143,7 +145,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
           );
         }
 
-        final matches = matchesJson.map((json) => Match.fromJson(json)).toList();
+        final matches = matchesJson.map(Match.fromJson).toList();
 
         return GridView.builder(
           padding: const EdgeInsets.all(16),
@@ -174,7 +176,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
             const SizedBox(height: 8),
             Text(
               error.toString(),
-              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -211,7 +213,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
                   'Films met enkele likes verschijnen hier',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -226,8 +228,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
             partialMatches.add(PartialMatch.fromJson(json));
           } catch (e) {
             // Log the error but continue processing other matches
-            print('[MovieQuest] ⚠️ Failed to parse partial match: $e');
-            print('[MovieQuest] Invalid JSON: $json');
+            devLogError('Failed to parse partial match', AppError.unknown(message: e.toString()));
           }
         }
 
@@ -260,7 +261,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
             const SizedBox(height: 8),
             Text(
               error.toString(),
-              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -288,7 +289,7 @@ class _MatchCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryGold.withOpacity(0.2),
+              color: AppTheme.primaryGold.withValues(alpha: 0.2),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -321,7 +322,7 @@ class _MatchCard extends ConsumerWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     stops: const [0.6, 1.0],
                   ),
@@ -383,7 +384,7 @@ class _MatchCard extends ConsumerWidget {
                           movie.releaseYear.toString(),
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
                     ],
@@ -400,7 +401,7 @@ class _MatchCard extends ConsumerWidget {
   void _showMovieDetails(BuildContext context, Movie movie, WidgetRef ref) {
     final tmdbService = ref.read(tmdbServiceProvider);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: AppTheme.surfaceDark,
@@ -432,7 +433,7 @@ class _MatchCard extends ConsumerWidget {
                       icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withOpacity(0.5),
+                        backgroundColor: Colors.black.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -519,7 +520,7 @@ class _PartialMatchCard extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryOrange.withOpacity(0.2),
+              color: AppTheme.primaryOrange.withValues(alpha: 0.2),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -552,7 +553,7 @@ class _PartialMatchCard extends ConsumerWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                     stops: const [0.6, 1.0],
                   ),
@@ -606,7 +607,7 @@ class _PartialMatchCard extends ConsumerWidget {
                         partialMatch.subtitle,
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.primaryOrange.withOpacity(0.9),
+                          color: AppTheme.primaryOrange.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -616,7 +617,7 @@ class _PartialMatchCard extends ConsumerWidget {
                           movie.releaseYear.toString(),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withOpacity(0.6),
+                            color: Colors.white.withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -634,7 +635,7 @@ class _PartialMatchCard extends ConsumerWidget {
   void _showMovieDetails(BuildContext context, Movie movie, WidgetRef ref) {
     final tmdbService = ref.read(tmdbServiceProvider);
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: AppTheme.surfaceDark,
@@ -666,7 +667,7 @@ class _PartialMatchCard extends ConsumerWidget {
                       icon: const Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.black.withOpacity(0.5),
+                        backgroundColor: Colors.black.withValues(alpha: 0.5),
                       ),
                     ),
                   ),

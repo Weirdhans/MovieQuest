@@ -2,13 +2,6 @@ import 'movie.dart';
 
 /// Match model - Represents a matched movie
 class Match {
-  final String id;
-  final String sessionId;
-  final int movieId;
-  final Map<String, dynamic> movieData;
-  final int likesCount;
-  final DateTime matchedAt;
-
   const Match({
     required this.id,
     required this.sessionId,
@@ -17,6 +10,13 @@ class Match {
     required this.likesCount,
     required this.matchedAt,
   });
+
+  final String id;
+  final String sessionId;
+  final int movieId;
+  final Map<String, dynamic> movieData;
+  final int likesCount;
+  final DateTime matchedAt;
 
   /// Create Match from Supabase JSON
   factory Match.fromJson(Map<String, dynamic> json) {

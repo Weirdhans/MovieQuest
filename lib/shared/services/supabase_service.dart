@@ -45,6 +45,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // ============================================
 
   /// Check if user is member of a session
+  @override
   Future<Result<bool>> checkIfSessionMember(
     String sessionId,
     String userId,
@@ -66,6 +67,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Create new session
+  @override
   Future<Result<Map<String, dynamic>>> createSession({
     required String hostUserId,
     required List<String> streamingProviders,
@@ -94,6 +96,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Get session by ID
+  @override
   Future<Result<Map<String, dynamic>>> getSession(String sessionId) async {
     return executeWithErrorHandling(
       () async {
@@ -112,6 +115,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Join existing session
+  @override
   Future<Result<Map<String, dynamic>>> joinSession({
     required String sessionId,
     required String userId,
@@ -141,7 +145,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
 
         // Update total_members count
         try {
-          await client.rpc('increment_total_members', params: {
+          await client.rpc<void>('increment_total_members', params: {
             'session_id': sessionId,
           });
         } catch (rpcError) {
@@ -170,6 +174,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // ============================================
 
   /// Record swipe action
+  @override
   Future<Result<Map<String, dynamic>>> recordSwipe({
     required String sessionId,
     required String userId,
@@ -198,6 +203,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Check and create match (V2 with required_votes logic)
+  @override
   Future<Result<Map<String, dynamic>>> checkAndCreateMatch({
     required String sessionId,
     required int movieId,
@@ -205,7 +211,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client.rpc('check_and_create_match_v2', params: {
+        final response = await client.rpc<dynamic>('check_and_create_match_v2', params: {
           'p_session_id': sessionId,
           'p_movie_id': movieId,
           'p_movie_data': movieData,
@@ -233,6 +239,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // ============================================
 
   /// Get all matches for a session
+  @override
   Future<Result<List<Map<String, dynamic>>>> getMatches(String sessionId) async {
     return executeWithErrorHandling(
       () async {
@@ -255,9 +262,10 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // ============================================
 
   /// Subscribe to new matches for a session
+  @override
   RealtimeChannel subscribeToMatches(
     String sessionId,
-    Function(Map<String, dynamic>) onMatch,
+    void Function(Map<String, dynamic>) onMatch,
   ) {
     devLog('Subscribing op matches voor sessie: $sessionId');
 
@@ -283,9 +291,10 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Subscribe to new members for a session
+  @override
   RealtimeChannel subscribeToMembers(
     String sessionId,
-    Function(Map<String, dynamic>) onNewMember,
+    void Function(Map<String, dynamic>) onNewMember,
   ) {
     devLog('Subscribing op members voor sessie: $sessionId');
 
@@ -315,19 +324,21 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // ============================================
 
   /// Get partial matches (films liked by some but not all)
+  @override
   Future<Result<List<Map<String, dynamic>>>> getPartialMatches(
     String sessionId, {
     int minVotes = 1,
   }) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client.rpc('get_partial_matches', params: {
+        final response = await client.rpc<dynamic>('get_partial_matches', params: {
           'p_session_id': sessionId,
           'p_min_votes': minVotes,
         });
 
-        devLogSuccess('${response.length} partial matches opgehaald');
-        return List<Map<String, dynamic>>.from(response);
+        final List<dynamic> responseList = response as List<dynamic>;
+        devLogSuccess('${responseList.length} partial matches opgehaald');
+        return List<Map<String, dynamic>>.from(responseList);
       },
       'getPartialMatches',
       metadata: {'sessionId': sessionId, 'minVotes': minVotes},
@@ -335,13 +346,14 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Undo last swipe
+  @override
   Future<Result<Map<String, dynamic>>> undoLastSwipe({
     required String sessionId,
     required String userId,
   }) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client.rpc('undo_last_swipe', params: {
+        final response = await client.rpc<dynamic>('undo_last_swipe', params: {
           'p_session_id': sessionId,
           'p_user_id': userId,
         }) as Map<String, dynamic>;
@@ -358,6 +370,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Get swipe counts for all session members
+  @override
   Future<Result<List<Map<String, dynamic>>>> getMemberSwipeCounts(
     String sessionId,
   ) async {
@@ -365,14 +378,15 @@ class SupabaseService extends BaseService implements ISupabaseService {
       () async {
         devLog('Fetching member swipe counts for session: $sessionId');
 
-        final response = await client.rpc('get_member_swipe_counts', params: {
+        final response = await client.rpc<dynamic>('get_member_swipe_counts', params: {
           'p_session_id': sessionId,
         });
 
         devLog('RPC response type: ${response.runtimeType}');
         devLog('RPC response: $response');
 
-        final members = List<Map<String, dynamic>>.from(response);
+        final List<dynamic> responseList = response as List<dynamic>;
+        final members = List<Map<String, dynamic>>.from(responseList);
         devLogSuccess('Swipe counts opgehaald voor ${members.length} members');
 
         // Log first member for debugging
@@ -388,6 +402,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Update session filters (host only)
+  @override
   Future<Result<bool>> updateSessionFilters({
     required String sessionId,
     required List<String> streamingProviders,
@@ -396,7 +411,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }) async {
     return executeWithErrorHandling(
       () async {
-        await client.rpc('update_session_filters', params: {
+        await client.rpc<dynamic>('update_session_filters', params: {
           'p_session_id': sessionId,
           'p_streaming_providers': streamingProviders,
           'p_genres': genres,
@@ -412,10 +427,11 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }
 
   /// Get session statistics
+  @override
   Future<Result<Map<String, dynamic>>> getSessionStats(String sessionId) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client.rpc('get_session_stats', params: {
+        final response = await client.rpc<dynamic>('get_session_stats', params: {
           'p_session_id': sessionId,
         }) as Map<String, dynamic>;
 

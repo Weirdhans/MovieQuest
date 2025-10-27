@@ -66,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                     'Ontdek films samen met vrienden',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -103,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      side: BorderSide(color: AppTheme.primaryGold.withOpacity(0.5), width: 2),
+                      side: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.5), width: 2),
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -132,7 +132,7 @@ class HomeScreen extends StatelessWidget {
                     'Powered by Zenith Reborn',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       letterSpacing: 1,
                     ),
                   ),
@@ -164,7 +164,7 @@ class _GradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryOrange.withOpacity(0.3),
+            color: AppTheme.primaryOrange.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 2,
           ),

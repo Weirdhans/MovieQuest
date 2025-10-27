@@ -1,20 +1,5 @@
 /// Movie model - Represents a movie from TMDB
 class Movie {
-  final int id;
-  final String title;
-  final String? originalTitle;
-  final String? overview;
-  final String? posterPath;
-  final String? backdropPath;
-  final double? voteAverage;
-  final int? voteCount;
-  final String? releaseDate;
-  final List<int>? genreIds;
-  final bool? adult;
-  final String? originalLanguage;
-  final double? popularity;
-  final bool? video;
-
   const Movie({
     required this.id,
     required this.title,
@@ -31,6 +16,21 @@ class Movie {
     this.popularity,
     this.video,
   });
+
+  final int id;
+  final String title;
+  final String? originalTitle;
+  final String? overview;
+  final String? posterPath;
+  final String? backdropPath;
+  final double? voteAverage;
+  final int? voteCount;
+  final String? releaseDate;
+  final List<int>? genreIds;
+  final bool? adult;
+  final String? originalLanguage;
+  final double? popularity;
+  final bool? video;
 
   /// Create Movie from TMDB JSON
   factory Movie.fromJson(Map<String, dynamic> json) {

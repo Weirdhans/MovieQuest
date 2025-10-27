@@ -1,11 +1,6 @@
 /// Base error class for all application errors
 /// Provides type-safe error handling with specific error types
 abstract class AppError implements Exception {
-  final String message;
-  final String? code;
-  final dynamic originalError;
-  final StackTrace? stackTrace;
-
   const AppError({
     required this.message,
     this.code,
@@ -48,6 +43,11 @@ abstract class AppError implements Exception {
     StackTrace? stackTrace,
   }) = UnknownError;
 
+  final String message;
+  final String? code;
+  final dynamic originalError;
+  final StackTrace? stackTrace;
+
   @override
   String toString() => 'AppError: $message';
 }
@@ -77,13 +77,13 @@ class ValidationError extends AppError {
 
 /// API errors (HTTP status codes, API responses)
 class ApiError extends AppError {
-  final int? statusCode;
-
   const ApiError({
     required super.message,
     this.statusCode,
     super.originalError,
   });
+
+  final int? statusCode;
 
   @override
   String toString() => 'ApiError [$statusCode]: $message';

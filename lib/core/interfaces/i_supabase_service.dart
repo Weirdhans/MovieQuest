@@ -39,11 +39,11 @@ abstract class ISupabaseService {
   // Realtime Subscriptions
   RealtimeChannel subscribeToMatches(
     String sessionId,
-    Function(Map<String, dynamic>) onMatch,
+    void Function(Map<String, dynamic>) onMatch,
   );
   RealtimeChannel subscribeToMembers(
     String sessionId,
-    Function(Map<String, dynamic>) onNewMember,
+    void Function(Map<String, dynamic>) onNewMember,
   );
 
   // V2 Features

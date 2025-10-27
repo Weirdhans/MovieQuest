@@ -1,11 +1,5 @@
 /// SessionStats model - Statistics about a swipe session
 class SessionStats {
-  final int totalSwipes;
-  final int memberCount;
-  final int totalMovies;
-  final int likeCount;
-  final int dislikeCount;
-
   const SessionStats({
     required this.totalSwipes,
     required this.memberCount,
@@ -13,6 +7,12 @@ class SessionStats {
     required this.likeCount,
     required this.dislikeCount,
   });
+
+  final int totalSwipes;
+  final int memberCount;
+  final int totalMovies;
+  final int likeCount;
+  final int dislikeCount;
 
   /// Create SessionStats from Supabase JSON response
   factory SessionStats.fromJson(Map<String, dynamic> json) {

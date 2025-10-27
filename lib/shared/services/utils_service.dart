@@ -18,6 +18,7 @@ class UtilsService extends BaseService implements IUtilsService {
   factory UtilsService() => _instance;
 
   /// Get or generate user ID (persisted in SharedPreferences)
+  @override
   Future<Result<String>> getUserId() async {
     return executeWithErrorHandling(
       () async {
@@ -39,6 +40,7 @@ class UtilsService extends BaseService implements IUtilsService {
   }
 
   /// Get session ID from URL (for deep linking)
+  @override
   String? getSessionIdFromUrl(String url) {
     try {
       final uri = Uri.parse(url);
@@ -54,11 +56,13 @@ class UtilsService extends BaseService implements IUtilsService {
   }
 
   /// Generate share link for session
+  @override
   String generateShareLink(String sessionId, String baseUrl) {
     return '$baseUrl?session=$sessionId';
   }
 
   /// Copy text to clipboard
+  @override
   Future<Result<bool>> copyToClipboard(String text) async {
     return executeWithErrorHandling(
       () async {
@@ -71,6 +75,7 @@ class UtilsService extends BaseService implements IUtilsService {
   }
 
   /// Share text using native share dialog
+  @override
   Future<Result<void>> shareText(String text, {String? subject}) async {
     return executeWithErrorHandling(
       () async {

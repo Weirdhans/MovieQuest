@@ -32,7 +32,7 @@ class MembersButton extends ConsumerWidget {
             ..sort((a, b) => b.swipeCount.compareTo(a.swipeCount));
 
           final memberCount = members.length;
-          devLog('MembersButton: successfully converted ${memberCount} members');
+          devLog('MembersButton: successfully converted $memberCount members');
 
           return Stack(
           clipBehavior: Clip.none,
@@ -71,20 +71,20 @@ class MembersButton extends ConsumerWidget {
         );
         } catch (e, stackTrace) {
           devLogError('Failed to convert members', e, stackTrace: stackTrace);
-          return IconButton(
-            icon: const Icon(Icons.group),
+          return const IconButton(
+            icon: Icon(Icons.group),
             onPressed: null,
           );
         }
       },
-      loading: () => IconButton(
-        icon: const Icon(Icons.group),
+      loading: () => const IconButton(
+        icon: Icon(Icons.group),
         onPressed: null,
       ),
       error: (error, stack) {
         devLogError('Failed to load members', error, stackTrace: stack);
-        return IconButton(
-          icon: const Icon(Icons.group),
+        return const IconButton(
+          icon: Icon(Icons.group),
           onPressed: null,
         );
       },
@@ -92,7 +92,7 @@ class MembersButton extends ConsumerWidget {
   }
 
   void _showMembersBottomSheet(BuildContext context, List<SessionMember> members) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -123,7 +123,7 @@ class _MembersBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppTheme.neutralGray.withOpacity(0.5),
+              color: AppTheme.neutralGray.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -233,7 +233,7 @@ class _MemberListItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.primaryGold.withOpacity(0.2),
+                color: AppTheme.primaryGold.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppTheme.primaryGold, width: 1),
               ),
@@ -265,14 +265,14 @@ class _MemberListItem extends StatelessWidget {
           'Swipes: ${member.swipeCount}',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
           ),
         ),
       ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.primaryOrange.withOpacity(0.2),
+          color: AppTheme.primaryOrange.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppTheme.primaryOrange, width: 1.5),
         ),

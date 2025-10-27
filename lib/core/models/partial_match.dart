@@ -2,17 +2,17 @@ import 'movie.dart';
 
 /// PartialMatch model - Represents a movie that has some likes but not enough for a full match
 class PartialMatch {
-  final int movieId;
-  final int likeCount;
-  final int requiredVotes;
-  final Map<String, dynamic> movieData;
-
   const PartialMatch({
     required this.movieId,
     required this.likeCount,
     required this.requiredVotes,
     required this.movieData,
   });
+
+  final int movieId;
+  final int likeCount;
+  final int requiredVotes;
+  final Map<String, dynamic> movieData;
 
   /// Create PartialMatch from Supabase JSON
   factory PartialMatch.fromJson(Map<String, dynamic> json) {

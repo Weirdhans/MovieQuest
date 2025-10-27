@@ -1,13 +1,5 @@
 /// Swipe model - Represents a user's swipe action
 class Swipe {
-  final String id;
-  final String sessionId;
-  final String userId;
-  final int movieId;
-  final bool swipedRight;
-  final Map<String, dynamic>? movieData;
-  final DateTime swipedAt;
-
   const Swipe({
     required this.id,
     required this.sessionId,
@@ -17,6 +9,14 @@ class Swipe {
     this.movieData,
     required this.swipedAt,
   });
+
+  final String id;
+  final String sessionId;
+  final String userId;
+  final int movieId;
+  final bool swipedRight;
+  final Map<String, dynamic>? movieData;
+  final DateTime swipedAt;
 
   /// Create Swipe from Supabase JSON
   factory Swipe.fromJson(Map<String, dynamic> json) {
