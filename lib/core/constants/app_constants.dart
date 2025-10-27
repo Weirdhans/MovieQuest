@@ -131,3 +131,18 @@ class Certifications {
     Certification(value: '16', label: '16 jaar'),
   ];
 }
+
+/// Genre Match Mode - determines how multiple genres are combined
+enum GenreMatchMode {
+  /// Films with at least ONE of the selected genres (OR logic) - More results
+  any('any', 'Films met minimaal één van deze genres', 'Aanbevolen voor meer resultaten'),
+
+  /// Films with ALL selected genres (AND logic) - Fewer, more specific results
+  all('all', 'Films met ALLE geselecteerde genres', 'Voor specifieke zoekopdrachten');
+
+  const GenreMatchMode(this.value, this.label, this.description);
+
+  final String value;
+  final String label;
+  final String description;
+}

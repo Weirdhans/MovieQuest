@@ -74,6 +74,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
     required List<String> genres,
     required String maxCertification,
     required int requiredVotes,
+    String genreMatchMode = 'any',
   }) async {
     return executeWithErrorHandling(
       () async {
@@ -85,6 +86,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
           'is_active': true,
           'total_members': 1,
           'required_votes': requiredVotes,
+          'genre_match_mode': genreMatchMode,
         }).select().single();
 
         devLogSuccess('Sessie aangemaakt: ${response['id']}');

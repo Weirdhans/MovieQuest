@@ -11,6 +11,7 @@ abstract class ISupabaseService {
     required List<String> genres,
     required String maxCertification,
     required int requiredVotes,
+    String genreMatchMode = 'any',
   });
   Future<Result<Map<String, dynamic>>> getSession(String sessionId);
   Future<Result<Map<String, dynamic>>> joinSession({

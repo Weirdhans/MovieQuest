@@ -71,9 +71,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
         final providers = (session['streaming_providers'] as List<dynamic>).map((e) => e.toString()).toList();
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
         final maxCertification = session['max_certification'] as String;
+        final genreMatchMode = session['genre_match_mode'] as String? ?? 'any';
 
         // Fetch movies from TMDB
-        await _fetchMovies(providers, genres, maxCertification, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, sessionId);
       },
       error: (error) {
         devLogError('Failed to get session', error);
@@ -86,6 +87,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     List<String> providers,
     List<String> genres,
     String maxCertification,
+    String genreMatchMode,
     String sessionId,
   ) async {
     final tmdbService = ref.read(tmdbServiceProvider);
@@ -93,6 +95,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       providers: providers,
       genres: genres,
       maxCertification: maxCertification,
+      genreMatchMode: genreMatchMode,
       sessionId: sessionId,
       page: _currentPage,
     );
@@ -218,8 +221,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
         final providers = (session['streaming_providers'] as List<dynamic>).map((e) => e.toString()).toList();
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
         final maxCertification = session['max_certification'] as String;
+        final genreMatchMode = session['genre_match_mode'] as String? ?? 'any';
 
-        await _fetchMovies(providers, genres, maxCertification, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, sessionId);
         setState(() => _isLoadingMore = false);
       },
       error: (error) {

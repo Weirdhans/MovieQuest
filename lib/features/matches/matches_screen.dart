@@ -53,8 +53,8 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
           labelColor: AppTheme.primaryGold,
           unselectedLabelColor: AppTheme.neutralGray,
           tabs: const [
-            Tab(text: 'Matches'),
-            Tab(text: 'Bijna Matches'),
+            Tab(text: 'Volledige Matches'),
+            Tab(text: 'Gedeeltelijke Matches'),
           ],
         ),
       ),
@@ -133,11 +133,15 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Begin met swipen om matches te vinden!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'Als genoeg mensen een film liken, verschijnt deze hier',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
@@ -202,18 +206,22 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Nog geen bijna-matches',
+                  'Nog geen gedeeltelijke matches',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'Films met enkele likes verschijnen hier',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'Films die door sommigen zijn geliked maar nog geen volledige match zijn verschijnen hier',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],

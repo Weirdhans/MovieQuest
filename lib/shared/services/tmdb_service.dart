@@ -97,10 +97,10 @@ class TmdbService extends BaseService implements ITmdbService {
 
         // Add genres (OR vs AND logic)
         if (genres.isNotEmpty) {
-          if (genreMatchMode == 'and') {
+          if (genreMatchMode == 'all' || genreMatchMode == 'and') {
             params['with_genres'] = genres.join(','); // AND: comma-separated
           } else {
-            params['with_genres'] = genres.join('|'); // OR: pipe-separated
+            params['with_genres'] = genres.join('|'); // OR: pipe-separated (default)
           }
         }
 

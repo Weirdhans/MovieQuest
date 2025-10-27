@@ -187,3 +187,6 @@ final requiredVotesProvider = StateProvider<int>((ref) => 2);
 
 /// Host Name Provider (for session creation)
 final hostNameProvider = StateProvider<String>((ref) => '');
+
+/// Genre Match Mode Provider (OR vs AND logic for genres)
+final genreMatchModeProvider = StateProvider<String>((ref) => 'any');
