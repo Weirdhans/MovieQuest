@@ -32,24 +32,29 @@ class StreamingProvider {
   final bool hasExtraCosts;
 }
 
-/// Categorized Streaming Providers (same as web version)
+/// Categorized Streaming Providers (updated 2025 - verified with TMDB API)
 class StreamingProviders {
   static const subscription = [
     StreamingProvider(id: '8', name: 'Netflix'),
-    StreamingProvider(id: '71', name: 'Videoland'),
-    StreamingProvider(id: '119', name: 'Prime Video', hasExtraCosts: true),
     StreamingProvider(id: '337', name: 'Disney+'),
-    StreamingProvider(id: '380', name: 'HBO Max'),
+    StreamingProvider(id: '76', name: 'Viaplay'),
+    StreamingProvider(id: '1773', name: 'SkyShowtime'),
+    StreamingProvider(id: '119', name: 'Prime Video', hasExtraCosts: true),
+    StreamingProvider(id: '71', name: 'Videoland'),
     StreamingProvider(id: '350', name: 'Apple TV+', hasExtraCosts: true),
+    StreamingProvider(id: '381', name: 'Canal+'),
   ];
 
   static const payPerView = [
-    StreamingProvider(id: '536', name: 'Pathé Thuis'),
-    StreamingProvider(id: '12', name: 'KPN Film'),
+    StreamingProvider(id: '71', name: 'Pathé Thuis'),
+    StreamingProvider(id: '563', name: 'KPN'),
+    StreamingProvider(id: '2', name: 'Apple TV'),
+    StreamingProvider(id: '3', name: 'Google Play Movies'),
   ];
 
   static const free = [
-    StreamingProvider(id: '531', name: 'NPO Start Plus'),
+    StreamingProvider(id: '360', name: 'NPO Start'),
+    StreamingProvider(id: '472', name: 'NLZIET'),
   ];
 
   static List<StreamingProvider> get all => [
@@ -134,11 +139,11 @@ class Certifications {
 
 /// Genre Match Mode - determines how multiple genres are combined
 enum GenreMatchMode {
-  /// Films with at least ONE of the selected genres (OR logic) - More results
-  any('any', 'Films met minimaal één van deze genres', 'Aanbevolen voor meer resultaten'),
-
   /// Films with ALL selected genres (AND logic) - Fewer, more specific results
-  all('all', 'Films met ALLE geselecteerde genres', 'Voor specifieke zoekopdrachten');
+  all('all', 'Films met ALLE geselecteerde genres', 'Voor specifieke zoekopdrachten'),
+
+  /// Films with at least ONE of the selected genres (OR logic) - More results
+  any('any', 'Films met minimaal één van deze genres', 'Aanbevolen voor meer resultaten');
 
   const GenreMatchMode(this.value, this.label, this.description);
 

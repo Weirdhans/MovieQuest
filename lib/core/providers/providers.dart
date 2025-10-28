@@ -132,16 +132,32 @@ final sessionPartialMatchesProvider = FutureProvider<List<Map<String, dynamic>>>
 });
 
 /// Session Stats Provider
+/// This provider auto-refreshes when swipes happen by watching currentMovieIndexProvider
 final sessionStatsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
   final sessionId = ref.watch(currentSessionIdProvider);
-  if (sessionId == null) return null;
+  // Watch movie index to refresh stats when swipes happen
+  final movieIndex = ref.watch(currentMovieIndexProvider);
+
+  devLog('🔄 [sessionStatsProvider] Called - sessionId=$sessionId, movieIndex=$movieIndex');
+
+  if (sessionId == null) {
+    devLog('⚠️ [sessionStatsProvider] No session ID, returning null');
+    return null;
+  }
 
   final supabaseService = ref.watch(supabaseServiceProvider);
+  devLog('📞 [sessionStatsProvider] Calling getSessionStats for session: $sessionId');
   final result = await supabaseService.getSessionStats(sessionId);
 
   return result.when(
-    success: (stats) => stats,
-    error: (error) => null,
+    success: (stats) {
+      devLogSuccess('✅ [sessionStatsProvider] Received stats from service');
+      return stats;
+    },
+    error: (error) {
+      devLogError('❌ [sessionStatsProvider] Error fetching stats', error);
+      return null;
+    },
   );
 });
 
@@ -197,4 +213,4 @@ final requiredVotesProvider = StateProvider<int>((ref) => 2);
 final hostNameProvider = StateProvider<String>((ref) => '');
 
 /// Genre Match Mode Provider (OR vs AND logic for genres)
-final genreMatchModeProvider = StateProvider<String>((ref) => 'any');
+final genreMatchModeProvider = StateProvider<String>((ref) => 'all');

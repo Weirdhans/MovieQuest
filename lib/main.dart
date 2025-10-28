@@ -4,7 +4,7 @@ import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'shared/services/supabase_service.dart';
 import 'features/home/home_screen.dart';
-import 'features/session/create_session_screen.dart';
+import 'features/session/create_session_wizard.dart';
 import 'features/session/session_created_screen.dart';
 import 'features/session/join_session_screen.dart';
 import 'features/swipe/swipe_screen.dart';
@@ -65,7 +65,7 @@ class MovieQuestApp extends StatelessWidget {
           case '/':
             return MaterialPageRoute(builder: (context) => const HomeScreen());
           case '/create-session':
-            return MaterialPageRoute(builder: (context) => const CreateSessionScreen());
+            return MaterialPageRoute(builder: (context) => const CreateSessionWizard());
           case '/session-created':
             return MaterialPageRoute(builder: (context) => const SessionCreatedScreen());
           case '/join-session':
