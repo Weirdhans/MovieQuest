@@ -15,8 +15,14 @@ class PartialMatch {
   final Map<String, dynamic> movieData;
 
   /// Create PartialMatch from Supabase JSON
+  ///
+  /// Expects data from get_partial_matches RPC function with fields:
+  /// - movie_id: TMDB movie ID
+  /// - like_count: Number of likes this movie has received
+  /// - required_votes: Total votes needed for a match (from session.required_votes)
+  /// - movie_data: Full TMDB movie data (title, poster, etc.)
   factory PartialMatch.fromJson(Map<String, dynamic> json) {
-    // Handle nullable fields from Supabase RPC
+    // Parse required fields from Supabase RPC response
     final movieId = json['movie_id'];
     final likeCount = json['like_count'];
     final requiredVotes = json['required_votes'];

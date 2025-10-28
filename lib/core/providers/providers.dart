@@ -70,26 +70,34 @@ final currentSessionProvider = FutureProvider<Map<String, dynamic>?>((ref) async
 final sessionMembersProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
   final sessionId = ref.watch(currentSessionIdProvider);
   // Watch movie index to refresh members when swipes happen
-  ref.watch(currentMovieIndexProvider);
+  final movieIndex = ref.watch(currentMovieIndexProvider);
 
-  devLog('sessionMembersProvider: sessionId=$sessionId');
+  devLog('🔄 [sessionMembersProvider] Called - sessionId=$sessionId, movieIndex=$movieIndex');
 
   if (sessionId == null) {
-    devLog('sessionMembersProvider: No session ID, returning empty list');
+    devLog('⚠️ [sessionMembersProvider] No session ID, returning empty list');
     return [];
   }
 
   final supabaseService = ref.watch(supabaseServiceProvider);
-  devLog('sessionMembersProvider: Calling getMemberSwipeCounts...');
+  devLog('📞 [sessionMembersProvider] Calling getMemberSwipeCounts for session: $sessionId');
   final result = await supabaseService.getMemberSwipeCounts(sessionId);
 
   return result.when(
     success: (members) {
-      devLogSuccess('sessionMembersProvider: Got ${members.length} members');
+      devLogSuccess('✅ [sessionMembersProvider] Received ${members.length} members from service');
+      if (members.isNotEmpty) {
+        devLog('👥 [sessionMembersProvider] Members summary:');
+        for (var member in members) {
+          devLog('  - ${member['user_name'] ?? 'Unknown'} (${member['user_id']?.toString().substring(0, 8) ?? 'no-id'}): ${member['swipe_count']} swipes');
+        }
+      } else {
+        devLog('⚠️ [sessionMembersProvider] No members received!');
+      }
       return members;
     },
     error: (error) {
-      devLogError('sessionMembersProvider', error);
+      devLogError('❌ [sessionMembersProvider] Error fetching members', error);
       return [];
     },
   );

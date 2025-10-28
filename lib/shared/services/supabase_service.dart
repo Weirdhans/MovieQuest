@@ -125,6 +125,9 @@ class SupabaseService extends BaseService implements ISupabaseService {
   }) async {
     return executeWithErrorHandling(
       () async {
+        devLog('🚪 [joinSession] Attempting to join session: $sessionId');
+        devLog('🚪 [joinSession] User ID: $userId, User Name: ${userName ?? "(none)"}');
+
         // Check if user is already a member
         final existingMember = await client
             .from('session_members')
@@ -134,9 +137,11 @@ class SupabaseService extends BaseService implements ISupabaseService {
             .maybeSingle();
 
         if (existingMember != null) {
-          devLogSuccess('Gebruiker is al lid van deze sessie');
+          devLogSuccess('✅ [joinSession] Gebruiker is al lid van deze sessie: ${existingMember['id']}');
           return existingMember;
         }
+
+        devLog('➕ [joinSession] Creating new session_member record...');
 
         // Insert new member
         final member = await client.from('session_members').insert({
@@ -145,12 +150,18 @@ class SupabaseService extends BaseService implements ISupabaseService {
           'user_name': userName,
         }).select().single();
 
+        devLogSuccess('✅ [joinSession] session_member created: ${member['id']}');
+        devLog('📋 [joinSession] Member data: $member');
+
         // Update total_members count
+        devLog('🔢 [joinSession] Updating total_members count...');
         try {
           await client.rpc<void>('increment_total_members', params: {
             'session_id': sessionId,
           });
+          devLogSuccess('✅ [joinSession] increment_total_members RPC called successfully');
         } catch (rpcError) {
+          devLog('⚠️ [joinSession] increment_total_members RPC not available, using fallback');
           // If RPC doesn't exist, do it manually
           final session = await client
               .from('sessions')
@@ -161,9 +172,10 @@ class SupabaseService extends BaseService implements ISupabaseService {
           await client.from('sessions').update({
             'total_members': ((session['total_members'] as int?) ?? 0) + 1,
           }).eq('id', sessionId);
+          devLogSuccess('✅ [joinSession] total_members updated manually');
         }
 
-        devLogSuccess('Gebruiker toegevoegd aan sessie');
+        devLogSuccess('🎉 [joinSession] Gebruiker toegevoegd aan sessie: ${member['id']}');
         return member;
       },
       'joinSession',
@@ -378,22 +390,27 @@ class SupabaseService extends BaseService implements ISupabaseService {
   ) async {
     return executeWithErrorHandling(
       () async {
-        devLog('Fetching member swipe counts for session: $sessionId');
+        devLog('🔍 [getMemberSwipeCounts] Fetching member swipe counts for session: $sessionId');
 
         final response = await client.rpc<dynamic>('get_member_swipe_counts', params: {
           'p_session_id': sessionId,
         });
 
-        devLog('RPC response type: ${response.runtimeType}');
-        devLog('RPC response: $response');
+        devLog('📦 [getMemberSwipeCounts] RPC response type: ${response.runtimeType}');
+        devLog('📦 [getMemberSwipeCounts] RPC response: $response');
 
         final List<dynamic> responseList = response as List<dynamic>;
         final members = List<Map<String, dynamic>>.from(responseList);
-        devLogSuccess('Swipe counts opgehaald voor ${members.length} members');
+        devLogSuccess('✅ [getMemberSwipeCounts] Swipe counts opgehaald voor ${members.length} members');
 
-        // Log first member for debugging
+        // Log ALL members for debugging
         if (members.isNotEmpty) {
-          devLog('First member data: ${members.first}');
+          devLog('👥 [getMemberSwipeCounts] All members data:');
+          for (var i = 0; i < members.length; i++) {
+            devLog('  Member ${i + 1}: ${members[i]}');
+          }
+        } else {
+          devLog('⚠️ [getMemberSwipeCounts] No members returned from RPC!');
         }
 
         return members;

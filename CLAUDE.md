@@ -171,7 +171,7 @@ The [SupabaseService](lib/shared/services/supabase_service.dart) is a singleton 
 **Required Supabase RPC Functions**:
 - `check_and_create_match_v2(p_session_id, p_movie_id, p_movie_data)` - Match checking with configurable vote threshold
 - `get_partial_matches(p_session_id, p_min_votes)` - Movies with some but not all votes
-- `get_member_swipe_counts(p_session_id)` - Member progress tracking
+- `get_member_swipe_counts(p_session_id)` - Member progress tracking with full member data (id, session_id, user_id, user_name, joined_at, swipe_count, likes_count, last_swipe_at, is_host)
 - `get_session_stats(p_session_id)` - Session statistics
 - `undo_last_swipe(p_session_id, p_user_id)` - Undo functionality
 - `increment_total_members(session_id)` - Increment member count (optional, has fallback)
@@ -212,9 +212,31 @@ Movies are shuffled deterministically based on session ID so all users see the s
 
 The app subscribes to Supabase realtime channels:
 - **Matches**: Show instant match notifications when members align
-- **Members**: Update member count when someone joins
+- **Members**: Update member count and stats when someone joins or swipes
 
-Subscriptions are managed in screen widgets and cleaned up on dispose.
+Subscriptions are managed in screen widgets and cleaned up on dispose. The swipe screen uses a dual approach: Supabase real-time subscription for automatic updates plus manual provider invalidation after each swipe for instant feedback.
+
+### Members Display and Progress Tracking
+
+The members button in the swipe screen shows:
+- **Real-time Member Count**: Badge on the group icon updates instantly
+- **Member Stats Card Layout**: Beautiful cards with gradients (gold/silver/bronze for top 3)
+- **Progress Bars**: Visual progress relative to the most active member
+- **Medal Rankings**: 🥇🥈🥉 emojis for top 3 members
+- **Swipe & Likes Tracking**: Shows total swipes and number of right swipes (likes)
+- **Host Badge**: Crown icon for session host
+
+The RPC function `get_member_swipe_counts` returns comprehensive member data including `likes_count` (filtered by `swiped_right = true`) and calculates `is_host` dynamically.
+
+### Fun Random Names
+
+Users who don't provide a name get auto-generated movie-themed names:
+- **Deterministic Generation**: Same user ID always produces the same name
+- **Movie Themes**: Combinations like "Popcorn Piraat", "Cinema Meester", "Blockbuster Ninja"
+- **225 Combinations**: 15 prefixes × 15 suffixes
+- Implementation: `SessionMember.generateFunName()` uses hashCode-based selection
+
+See [session_member.dart](lib/core/models/session_member.dart) for the name generation algorithm.
 
 ### User ID Management
 

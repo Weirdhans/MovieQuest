@@ -8,9 +8,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:confetti/confetti.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/providers.dart';
 import '../../core/models/movie.dart';
+import '../../core/models/session_member.dart';
 import '../../core/utils/dev_log.dart';
 import '../../core/interfaces/i_tmdb_service.dart';
 import '../../shared/widgets/members_button.dart';
@@ -36,11 +38,15 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
   // Undo functionality - track last 5 swipes (FIFO queue)
   final List<int> _swipeHistory = [];
 
+  // Realtime subscription channel
+  RealtimeChannel? _membersSubscription;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeMovies();
+      _setupMembersSubscription();
     });
   }
 
@@ -48,7 +54,37 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
   void dispose() {
     _swiperController.dispose();
     _confettiController.dispose();
+    // Cleanup subscription
+    _membersSubscription?.unsubscribe();
     super.dispose();
+  }
+
+  /// Setup realtime subscription for new members
+  ///
+  /// Subscribes to the Supabase `session_members` table for INSERT events.
+  /// When a new member joins the session, this automatically refreshes the
+  /// members list by invalidating the [sessionMembersProvider].
+  ///
+  /// This ensures the members button badge and list are always up-to-date
+  /// without requiring manual refresh or polling.
+  ///
+  /// The subscription is automatically cleaned up in [dispose].
+  void _setupMembersSubscription() {
+    final sessionId = ref.read(currentSessionIdProvider);
+    if (sessionId == null) return;
+
+    final supabaseService = ref.read(supabaseServiceProvider);
+
+    devLog('🔔 [SwipeScreen] Setting up members subscription for session: $sessionId');
+
+    _membersSubscription = supabaseService.subscribeToMembers(
+      sessionId,
+      (newMember) {
+        devLogSuccess('🎉 [SwipeScreen] New member joined: ${newMember['user_name'] ?? 'Unknown'}');
+        // Invalidate the members provider to refresh the UI
+        ref.invalidate(sessionMembersProvider);
+      },
+    );
   }
 
   Future<void> _initializeMovies() async {
@@ -163,6 +199,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
             _swipeHistory.removeAt(0); // Remove oldest (FIFO)
           }
         });
+
+        // Invalidate members provider to update swipe counts immediately
+        ref.invalidate(sessionMembersProvider);
 
         // Check for match if liked
         if (swipedRight) {
@@ -602,20 +641,65 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get current user name from session members
+    final membersAsync = ref.watch(sessionMembersProvider);
+    final userId = ref.watch(userIdProvider);
+
+    // Get current user display name
+    String? currentUserName;
+    membersAsync.whenData((members) {
+      userId.whenData((currentUserId) {
+        final currentMember = members.cast<Map<String, dynamic>?>().firstWhere(
+          (m) => m?['user_id'] == currentUserId,
+          orElse: () => null,
+        );
+        if (currentMember != null) {
+          currentUserName = currentMember['user_name'] as String? ??
+              SessionMember.generateFunName(currentUserId);
+        }
+      });
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('MovieQuest'),
-            if (_movies.isNotEmpty)
-              Text(
-                'Film ${_currentCardIndex + 1} / ${_movies.length}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade400,
-                  fontWeight: FontWeight.normal,
-                ),
+            // Subtitle with user name and movie progress
+            if (_movies.isNotEmpty || currentUserName != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (currentUserName != null) ...[
+                    Text(
+                      currentUserName!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.primaryGold,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (_movies.isNotEmpty) ...[
+                      Text(
+                        ' • ',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  ],
+                  if (_movies.isNotEmpty)
+                    Text(
+                      'Film ${_currentCardIndex + 1} / ${_movies.length}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade400,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                ],
               ),
           ],
         ),
