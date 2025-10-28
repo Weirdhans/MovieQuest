@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:confetti/confetti.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/providers.dart';
 import '../../core/models/movie.dart';
@@ -200,8 +201,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
           }
         });
 
-        // Invalidate members provider to update swipe counts immediately
+        // Invalidate providers to update UI immediately
         ref.invalidate(sessionMembersProvider);
+        ref.invalidate(sessionStatsProvider);
 
         // Check for match if liked
         if (swipedRight) {
@@ -412,7 +414,55 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
               'Deel deze link met anderen om samen films te vinden:',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            // QR Code
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppTheme.primaryGold,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryGold.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: QrImageView(
+                  data: joinUrl,
+                  version: QrVersions.auto,
+                  size: 180.0,
+                  backgroundColor: Colors.white,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Divider text
+            Center(
+              child: Text(
+                'Of deel handmatig:',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
