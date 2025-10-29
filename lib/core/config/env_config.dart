@@ -1,28 +1,27 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// Conditional import: use web config for web platform, dotenv for mobile
+import 'env_config_stub.dart'
+    if (dart.library.html) 'env_config_web.dart'
+    if (dart.library.io) 'env_config_mobile.dart';
 
 /// Environment configuration
-/// Loads API keys and URLs from .env file
+/// Uses compile-time constants for web, .env file for mobile
 class EnvConfig {
   // Supabase
-  static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
-  static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  static String get supabaseUrl => getSupabaseUrl();
+  static String get supabaseAnonKey => getSupabaseAnonKey();
 
   // TMDB
-  static String get tmdbApiKey => dotenv.env['TMDB_API_KEY'] ?? '';
-  static String get tmdbBaseUrl =>
-      dotenv.env['TMDB_BASE_URL'] ?? 'https://api.themoviedb.org/3';
-  static String get tmdbImageBase =>
-      dotenv.env['TMDB_IMAGE_BASE'] ?? 'https://image.tmdb.org/t/p/w500';
+  static String get tmdbApiKey => getTmdbApiKey();
+  static String get tmdbBaseUrl => getTmdbBaseUrl();
+  static String get tmdbImageBase => getTmdbImageBase();
 
-  /// Initialize environment variables
+  /// Initialize environment variables (only needed for mobile)
   static Future<void> init() async {
-    await dotenv.load(fileName: '.env');
+    await initEnv();
   }
 
   /// Validate that all required environment variables are set
   static bool validate() {
-    return supabaseUrl.isNotEmpty &&
-        supabaseAnonKey.isNotEmpty &&
-        tmdbApiKey.isNotEmpty;
+    return validateEnv();
   }
 }

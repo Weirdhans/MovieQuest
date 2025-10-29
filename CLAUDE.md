@@ -269,10 +269,18 @@ flutter test --coverage
 
 The Flutter web version is automatically deployed to Vercel via `vercel.json`:
 
-- **Build Command**: Clones Flutter stable, builds web release
+- **Build Command**: `node generate_env.js && flutter/bin/flutter build web --release --web-renderer canvaskit`
+  - `generate_env.js`: Node.js script that reads Vercel environment variables and generates `lib/core/config/env_config_web.dart` with compile-time constants
+  - Flutter web requires env vars at compile-time (unlike mobile which can read .env at runtime)
 - **Output**: `build/web` directory
-- **Environment Variables**: Set in Vercel dashboard (SUPABASE_URL, SUPABASE_ANON_KEY, TMDB_API_KEY, etc.)
+- **Environment Variables**: Set in Vercel dashboard (SUPABASE_URL, SUPABASE_ANON_KEY, TMDB_API_KEY, TMDB_BASE_URL, TMDB_IMAGE_BASE)
 - **Auto-Deploy**: Triggers on push to `main` branch
+- **Web Renderer**: Uses CanvasKit for better font rendering (resolves Noto font warnings)
+
+**Platform-Specific Environment Config**:
+- **Web** ([env_config_web.dart](lib/core/config/env_config_web.dart)): Compile-time constants generated during Vercel build
+- **Mobile** ([env_config_mobile.dart](lib/core/config/env_config_mobile.dart)): Runtime .env file loaded via `flutter_dotenv`
+- **Main API** ([env_config.dart](lib/core/config/env_config.dart)): Uses conditional imports to automatically select the correct implementation
 
 The same Flutter/Dart codebase supports multiple platforms:
 - **Web**: Deployed to Vercel
@@ -284,8 +292,13 @@ All platforms share the same Supabase backend and Riverpod state management.
 ## Common Gotchas
 
 1. **Riverpod Code Generation**: Always run `dart run build_runner build` after adding/modifying `@riverpod` annotated code
-2. **Environment Variables**: App will throw exception on startup if `.env` is missing or invalid
+2. **Environment Variables**:
+   - **Mobile**: App will throw exception on startup if `.env` is missing or invalid
+   - **Web**: Environment variables are baked in at build time via `generate_env.js` script
 3. **Supabase RPC Functions**: Backend must have all required RPC functions deployed for full functionality
 4. **TMDB Region**: Hardcoded to Netherlands (`NL`) for certifications and streaming providers
 5. **Member Count**: The app tries to use `increment_total_members` RPC but has a manual fallback if not available
-6. **Vercel Deployment**: Changes to fonts/assets require new Vercel build (auto-triggered on git push)
+6. **Vercel Deployment**:
+   - Changes to fonts/assets require new Vercel build (auto-triggered on git push)
+   - Environment variables must be set in Vercel dashboard (not in git)
+   - The `env_config_web.dart` file is gitignored and generated during each build

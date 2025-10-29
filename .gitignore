@@ -54,3 +54,8 @@ app.*.map.json
 
 # MCP Server configuration (contains API keys)
 .mcp.json
+
+# Generated environment config for web (generated during Vercel build)
+# This file contains empty placeholders locally but gets populated with
+# actual values during the Vercel build process
+lib/core/config/env_config_web.dart
