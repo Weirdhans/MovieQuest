@@ -7,6 +7,7 @@ abstract class ITmdbService {
     required List<String> genres,
     required String maxCertification,
     String genreMatchMode = 'or',
+    List<String>? excludedGenres,
     String? sessionId,
     int page = 1,
   });
@@ -18,6 +19,7 @@ abstract class ITmdbService {
     required List<String> genres,
     required String maxCertification,
     String genreMatchMode = 'or',
+    List<String>? excludedGenres,
     String? sessionId,
     required int currentPage,
   });

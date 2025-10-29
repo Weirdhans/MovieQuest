@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
@@ -228,6 +229,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
   // STEP 2: Genres
   Widget _buildStep2Genres() {
     final selectedGenres = ref.watch(selectedGenresProvider);
+    final excludedGenres = ref.watch(excludedGenresProvider);
     final genreMatchMode = ref.watch(genreMatchModeProvider);
 
     return Column(
@@ -254,15 +256,26 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
           runSpacing: 12,
           children: Genres.list.map((genre) {
             final isSelected = selectedGenres.contains(genre.id);
-            return _FilterChip(
+            final isExcluded = excludedGenres.contains(genre.id);
+
+            return _ThreeStateFilterChip(
               label: genre.name,
-              selected: isSelected,
-              onSelected: (selected) {
-                final notifier = ref.read(selectedGenresProvider.notifier);
-                if (selected) {
-                  notifier.state = [...selectedGenres, genre.id];
+              isSelected: isSelected,
+              isExcluded: isExcluded,
+              onTap: () {
+                final selectedNotifier = ref.read(selectedGenresProvider.notifier);
+                final excludedNotifier = ref.read(excludedGenresProvider.notifier);
+
+                if (isSelected) {
+                  // State 1→2: Selected → Excluded
+                  selectedNotifier.state = selectedGenres.where((id) => id != genre.id).toList();
+                  excludedNotifier.state = [...excludedGenres, genre.id];
+                } else if (isExcluded) {
+                  // State 2→0: Excluded → Unselected
+                  excludedNotifier.state = excludedGenres.where((id) => id != genre.id).toList();
                 } else {
-                  notifier.state = selectedGenres.where((id) => id != genre.id).toList();
+                  // State 0→1: Unselected → Selected
+                  selectedNotifier.state = [...selectedGenres, genre.id];
                 }
               },
             );
@@ -894,6 +907,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
   Future<void> _createSession() async {
     final selectedProviders = _noPreference ? <String>[] : ref.read(selectedProvidersProvider);
     final selectedGenres = ref.read(selectedGenresProvider);
+    final excludedGenres = ref.read(excludedGenresProvider);
     final selectedCertification = ref.read(selectedCertificationProvider);
     final requiredVotes = ref.read(requiredVotesProvider);
     final genreMatchMode = ref.read(genreMatchModeProvider);
@@ -917,6 +931,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
         maxCertification: selectedCertification,
         requiredVotes: requiredVotes,
         genreMatchMode: genreMatchMode,
+        excludedGenres: excludedGenres.isNotEmpty ? excludedGenres : null,
       );
 
       await result.when(
@@ -958,6 +973,132 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
     } finally {
       ref.read(isLoadingProvider.notifier).state = false;
     }
+  }
+}
+
+/// Three-state filter chip widget (Unselected → Selected → Excluded)
+class _ThreeStateFilterChip extends StatefulWidget {
+  const _ThreeStateFilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.isExcluded,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final bool isExcluded;
+  final VoidCallback onTap;
+
+  @override
+  State<_ThreeStateFilterChip> createState() => _ThreeStateFilterChipState();
+}
+
+class _ThreeStateFilterChipState extends State<_ThreeStateFilterChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTap() async {
+    // Trigger haptic feedback
+    await HapticFeedback.lightImpact();
+
+    // Animate
+    await _controller.forward();
+    await _controller.reverse();
+
+    // Execute callback
+    widget.onTap();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColor;
+    Color textColor;
+    Widget? icon;
+    TextDecoration? textDecoration;
+
+    if (widget.isSelected) {
+      // State 1: Selected (yellow/gold)
+      backgroundColor = AppTheme.primaryGold;
+      textColor = Colors.black;
+      icon = const Icon(Icons.check, size: 16, color: Colors.black);
+      textDecoration = null;
+    } else if (widget.isExcluded) {
+      // State 2: Excluded (red with strikethrough)
+      backgroundColor = const Color(0xFFD32F2F);
+      textColor = Colors.white;
+      icon = const Icon(Icons.close, size: 16, color: Colors.white);
+      textDecoration = TextDecoration.lineThrough;
+    } else {
+      // State 0: Unselected (dark)
+      backgroundColor = AppTheme.surfaceDark;
+      textColor = Colors.white;
+      icon = null;
+      textDecoration = null;
+    }
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: InkWell(
+        onTap: _handleTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: widget.isSelected
+                  ? AppTheme.primaryGold
+                  : widget.isExcluded
+                      ? const Color(0xFFD32F2F)
+                      : AppTheme.primaryGold.withValues(alpha: 0.3),
+              width: widget.isSelected || widget.isExcluded ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                icon,
+                const SizedBox(width: 4),
+              ],
+              Text(
+                widget.label,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: widget.isSelected || widget.isExcluded
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  decoration: textDecoration,
+                  decorationColor: textColor,
+                  decorationThickness: 2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

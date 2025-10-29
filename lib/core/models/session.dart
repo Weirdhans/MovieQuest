@@ -10,6 +10,7 @@ class Session {
     required this.totalMembers,
     required this.requiredVotes,
     required this.createdAt,
+    this.excludedGenres,
     this.updatedAt,
   });
 
@@ -22,6 +23,7 @@ class Session {
   final int totalMembers;
   final int requiredVotes;
   final DateTime createdAt;
+  final List<String>? excludedGenres; // Optional for backward compatibility
   final DateTime? updatedAt;
 
   /// Create Session from Supabase JSON
@@ -38,6 +40,11 @@ class Session {
       totalMembers: json['total_members'] as int? ?? 1,
       requiredVotes: json['required_votes'] as int? ?? 2,
       createdAt: DateTime.parse(json['created_at'] as String),
+      excludedGenres: json['excluded_genres'] != null
+          ? (json['excluded_genres'] as List<dynamic>)
+              .map((e) => e.toString())
+              .toList()
+          : null,
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
@@ -56,6 +63,7 @@ class Session {
       'total_members': totalMembers,
       'required_votes': requiredVotes,
       'created_at': createdAt.toIso8601String(),
+      if (excludedGenres != null) 'excluded_genres': excludedGenres,
       'updated_at': updatedAt?.toIso8601String(),
     };
   }
@@ -71,6 +79,7 @@ class Session {
     int? totalMembers,
     int? requiredVotes,
     DateTime? createdAt,
+    List<String>? excludedGenres,
     DateTime? updatedAt,
   }) {
     return Session(
@@ -83,6 +92,7 @@ class Session {
       totalMembers: totalMembers ?? this.totalMembers,
       requiredVotes: requiredVotes ?? this.requiredVotes,
       createdAt: createdAt ?? this.createdAt,
+      excludedGenres: excludedGenres ?? this.excludedGenres,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

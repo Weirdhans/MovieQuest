@@ -203,6 +203,9 @@ final selectedProvidersProvider = StateProvider<List<String>>((ref) => []);
 /// Selected Genres
 final selectedGenresProvider = StateProvider<List<String>>((ref) => []);
 
+/// Excluded Genres (genres to filter out)
+final excludedGenresProvider = StateProvider<List<String>>((ref) => []);
+
 /// Selected Max Certification
 final selectedCertificationProvider = StateProvider<String>((ref) => 'AL');
 

@@ -75,10 +75,11 @@ class SupabaseService extends BaseService implements ISupabaseService {
     required String maxCertification,
     required int requiredVotes,
     String genreMatchMode = 'any',
+    List<String>? excludedGenres,
   }) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client.from('sessions').insert({
+        final sessionData = {
           'host_user_id': hostUserId,
           'streaming_providers': streamingProviders,
           'genres': genres,
@@ -87,7 +88,14 @@ class SupabaseService extends BaseService implements ISupabaseService {
           'total_members': 1,
           'required_votes': requiredVotes,
           'genre_match_mode': genreMatchMode,
-        }).select().single();
+        };
+
+        // Add excluded_genres if provided
+        if (excludedGenres != null && excludedGenres.isNotEmpty) {
+          sessionData['excluded_genres'] = excludedGenres;
+        }
+
+        final response = await client.from('sessions').insert(sessionData).select().single();
 
         devLogSuccess('Sessie aangemaakt: ${response['id']}');
         return response;

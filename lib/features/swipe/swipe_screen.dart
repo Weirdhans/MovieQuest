@@ -109,9 +109,12 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
         final maxCertification = session['max_certification'] as String;
         final genreMatchMode = session['genre_match_mode'] as String? ?? 'any';
+        final excludedGenres = session['excluded_genres'] != null
+            ? (session['excluded_genres'] as List<dynamic>).map((e) => e.toString()).toList()
+            : <String>[];
 
         // Fetch movies from TMDB
-        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId);
       },
       error: (error) {
         devLogError('Failed to get session', error);
@@ -125,6 +128,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     List<String> genres,
     String maxCertification,
     String genreMatchMode,
+    List<String> excludedGenres,
     String sessionId,
   ) async {
     final tmdbService = ref.read(tmdbServiceProvider);
@@ -133,6 +137,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       genres: genres,
       maxCertification: maxCertification,
       genreMatchMode: genreMatchMode,
+      excludedGenres: excludedGenres.isNotEmpty ? excludedGenres : null,
       sessionId: sessionId,
       page: _currentPage,
     );
@@ -263,8 +268,11 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
         final genres = (session['genres'] as List<dynamic>).map((e) => e.toString()).toList();
         final maxCertification = session['max_certification'] as String;
         final genreMatchMode = session['genre_match_mode'] as String? ?? 'any';
+        final excludedGenres = session['excluded_genres'] != null
+            ? (session['excluded_genres'] as List<dynamic>).map((e) => e.toString()).toList()
+            : <String>[];
 
-        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId);
         setState(() => _isLoadingMore = false);
       },
       error: (error) {

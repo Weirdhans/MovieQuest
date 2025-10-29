@@ -67,13 +67,15 @@ class TmdbService extends BaseService implements ITmdbService {
     required List<String> genres,
     required String maxCertification,
     String genreMatchMode = 'or',
+    List<String>? excludedGenres,
     String? sessionId,
     int page = 1,
   }) async {
     return executeWithErrorHandling(
       () async {
         // Check cache
-        final cacheKey = '${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$page';
+        final excludedKey = excludedGenres?.join(',') ?? '';
+        final cacheKey = '${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$page';
         if (_moviesCache.containsKey(cacheKey)) {
           devLog('Films geladen uit cache: $cacheKey');
           return _moviesCache[cacheKey]!;
@@ -102,6 +104,11 @@ class TmdbService extends BaseService implements ITmdbService {
           } else {
             params['with_genres'] = genres.join('|'); // OR: pipe-separated (default)
           }
+        }
+
+        // Add excluded genres (always AND logic)
+        if (excludedGenres != null && excludedGenres.isNotEmpty) {
+          params['without_genres'] = excludedGenres.join(',');
         }
 
         // Add certification (max age rating)
@@ -162,6 +169,7 @@ class TmdbService extends BaseService implements ITmdbService {
     required List<String> genres,
     required String maxCertification,
     String genreMatchMode = 'or',
+    List<String>? excludedGenres,
     String? sessionId,
     required int currentPage,
   }) async {
@@ -173,6 +181,7 @@ class TmdbService extends BaseService implements ITmdbService {
       genres: genres,
       maxCertification: maxCertification,
       genreMatchMode: genreMatchMode,
+      excludedGenres: excludedGenres,
       sessionId: sessionId,
       page: nextPage,
     );
