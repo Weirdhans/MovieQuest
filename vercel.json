@@ -1,5 +1,5 @@
 {
-  "buildCommand": "printf 'SUPABASE_URL=%s\\nSUPABASE_ANON_KEY=%s\\nTMDB_API_KEY=%s\\nTMDB_BASE_URL=%s\\nTMDB_IMAGE_BASE=%s\\n' \"$SUPABASE_URL\" \"$SUPABASE_ANON_KEY\" \"$TMDB_API_KEY\" \"$TMDB_BASE_URL\" \"$TMDB_IMAGE_BASE\" > .env && flutter/bin/flutter build web --release --web-renderer canvaskit",
+  "buildCommand": "chmod +x build.sh && ./build.sh",
   "outputDirectory": "build/web",
   "framework": null,
   "installCommand": "if [ ! -d flutter ]; then git clone https://github.com/flutter/flutter.git -b stable --depth 1; fi && flutter/bin/flutter config --enable-web && flutter/bin/flutter pub get",
