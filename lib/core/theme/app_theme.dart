@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// MovieQuest Theme - Zenith Reborn branding
 /// Phoenix-inspired color scheme with gold and orange accents
@@ -149,49 +150,51 @@ class AppTheme {
         ),
       ),
 
-      // Text Theme
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: lightText,
-        ),
-        displayMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: lightText,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: lightText,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: lightText,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: lightText,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: lightText,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          color: lightText,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          color: lightText,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          color: neutralGray,
+      // Text Theme with Google Fonts fallback (fixes Noto font warning)
+      textTheme: GoogleFonts.interTextTheme(
+        const TextTheme(
+          displayLarge: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: lightText,
+          ),
+          displayMedium: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: lightText,
+          ),
+          displaySmall: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: lightText,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: lightText,
+          ),
+          titleLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: lightText,
+          ),
+          titleMedium: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: lightText,
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 16,
+            color: lightText,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            color: lightText,
+          ),
+          bodySmall: TextStyle(
+            fontSize: 12,
+            color: neutralGray,
+          ),
         ),
       ),
 
