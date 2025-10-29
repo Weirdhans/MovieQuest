@@ -48,25 +48,11 @@ class SessionCreatedScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Success Icon
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppTheme.phoenixGradient,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryOrange.withValues(alpha: 0.4),
-                          blurRadius: 30,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_outline,
-                      size: 80,
-                      color: Colors.white,
-                    ),
+                  // Logo
+                  Image.asset(
+                    'assets/images/moviequest_logo_new.png',
+                    width: 120,
+                    height: 120,
                   ),
 
                   const SizedBox(height: 32),
