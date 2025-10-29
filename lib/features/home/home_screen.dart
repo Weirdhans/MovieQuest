@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Phoenix Logo with glow effect
+                  // MovieQuest Logo with filmreel - New branding!
                   Container(
                     decoration: BoxDecoration(
                       boxShadow: [
@@ -32,12 +32,18 @@ class HomeScreen extends StatelessWidget {
                           blurRadius: 50,
                           spreadRadius: 10,
                         ),
+                        // Extra glow for turquoise filmreel
+                        BoxShadow(
+                          color: AppTheme.accentTurquoise.withAlpha(40),
+                          blurRadius: 40,
+                          spreadRadius: 5,
+                        ),
                       ],
                     ),
                     child: Image.asset(
-                      'assets/images/phoenix_logo.png',
-                      width: 200,
-                      height: 200,
+                      'assets/images/moviequest_logo_new.png',
+                      width: 220,
+                      height: 220,
                     ),
                   ),
 

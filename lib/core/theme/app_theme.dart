@@ -7,6 +7,8 @@ class AppTheme {
   static const Color primaryGold = Color(0xFFFFB800); // Phoenix gold
   static const Color primaryOrange = Color(0xFFFF6B35); // Phoenix flame orange
   static const Color deepRed = Color(0xFFB91C1C); // Deep red accent
+  static const Color accentTurquoise = Color(0xFF4FD1C5); // Filmreel turquoise accent
+  static const Color accentGreen = Color(0xFF68D391); // Success/up arrow green
   static const Color darkBackground = Color(0xFF0A0A0A); // Very dark bg
   static const Color surfaceDark = Color(0xFF1A1A1A); // Slightly lighter surface
   static const Color lightText = Color(0xFFF5F5F5); // Off-white text
