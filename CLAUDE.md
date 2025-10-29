@@ -269,13 +269,13 @@ flutter test --coverage
 
 The Flutter web version is automatically deployed to Vercel via `vercel.json`:
 
-- **Build Command**: `node generate_env.js && flutter/bin/flutter build web --release --web-renderer canvaskit`
+- **Build Command**: `node generate_env.js && touch .env && flutter/bin/flutter build web --release`
   - `generate_env.js`: Node.js script that reads Vercel environment variables and generates `lib/core/config/env_config_web.dart` with compile-time constants
   - Flutter web requires env vars at compile-time (unlike mobile which can read .env at runtime)
 - **Output**: `build/web` directory
 - **Environment Variables**: Set in Vercel dashboard (SUPABASE_URL, SUPABASE_ANON_KEY, TMDB_API_KEY, TMDB_BASE_URL, TMDB_IMAGE_BASE)
 - **Auto-Deploy**: Triggers on push to `main` branch
-- **Web Renderer**: Uses CanvasKit for better font rendering (resolves Noto font warnings)
+- **Vercel Analytics**: Integrated via script injection in [web/index.html](web/index.html) - automatically tracks page views and user interactions
 
 **Platform-Specific Environment Config**:
 - **Web** ([env_config_web.dart](lib/core/config/env_config_web.dart)): Compile-time constants generated during Vercel build
