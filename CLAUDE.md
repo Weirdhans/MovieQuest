@@ -263,6 +263,24 @@ flutter test test/widget_test.dart
 flutter test --coverage
 ```
 
+## Deployment
+
+### Vercel Web Deployment
+
+The Flutter web version is automatically deployed to Vercel via `vercel.json`:
+
+- **Build Command**: Clones Flutter stable, builds web release
+- **Output**: `build/web` directory
+- **Environment Variables**: Set in Vercel dashboard (SUPABASE_URL, SUPABASE_ANON_KEY, TMDB_API_KEY, etc.)
+- **Auto-Deploy**: Triggers on push to `main` branch
+
+The same Flutter/Dart codebase supports multiple platforms:
+- **Web**: Deployed to Vercel
+- **Mobile**: Android/iOS apps
+- **Desktop**: Windows/macOS (configured but not deployed)
+
+All platforms share the same Supabase backend and Riverpod state management.
+
 ## Common Gotchas
 
 1. **Riverpod Code Generation**: Always run `dart run build_runner build` after adding/modifying `@riverpod` annotated code
@@ -270,3 +288,4 @@ flutter test --coverage
 3. **Supabase RPC Functions**: Backend must have all required RPC functions deployed for full functionality
 4. **TMDB Region**: Hardcoded to Netherlands (`NL`) for certifications and streaming providers
 5. **Member Count**: The app tries to use `increment_total_members` RPC but has a manual fallback if not available
+6. **Vercel Deployment**: Changes to fonts/assets require new Vercel build (auto-triggered on git push)
