@@ -9,6 +9,8 @@ String getTmdbBaseUrl() =>
     dotenv.env['TMDB_BASE_URL'] ?? 'https://api.themoviedb.org/3';
 String getTmdbImageBase() =>
     dotenv.env['TMDB_IMAGE_BASE'] ?? 'https://image.tmdb.org/t/p/w500';
+String getWebAppUrl() =>
+    dotenv.env['WEB_APP_URL'] ?? 'https://movie-quests.vercel.app';
 
 Future<void> initEnv() async {
   await dotenv.load(fileName: '.env');

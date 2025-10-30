@@ -6,6 +6,7 @@ String getSupabaseAnonKey() => throw UnsupportedError('Platform not supported');
 String getTmdbApiKey() => throw UnsupportedError('Platform not supported');
 String getTmdbBaseUrl() => throw UnsupportedError('Platform not supported');
 String getTmdbImageBase() => throw UnsupportedError('Platform not supported');
+String getWebAppUrl() => throw UnsupportedError('Platform not supported');
 
 Future<void> initEnv() async {
   throw UnsupportedError('Platform not supported');

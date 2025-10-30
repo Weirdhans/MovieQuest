@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
+import '../../core/utils/url_utils.dart';
 import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Session Created Screen - Display shareable session link after creation
@@ -26,8 +27,8 @@ class SessionCreatedScreen extends ConsumerWidget {
       );
     }
 
-    // Build the session URL (adjust based on your deployment)
-    final sessionUrl = 'https://movie-quest-beryl.vercel.app/?join=$sessionId';
+    // Build the session URL using dynamic URL detection
+    final sessionUrl = UrlUtils.getJoinUrl(sessionId);
 
     return Scaffold(
       appBar: AppBar(
@@ -215,8 +216,11 @@ class SessionCreatedScreen extends ConsumerWidget {
                         // Share Button
                         OutlinedButton.icon(
                           onPressed: () async {
+                            // Get session name if available, or use default
+                            final sessionName = 'MovieQuest';
+                            final shareText = 'Doe mee met mijn $sessionName sessie: $sessionUrl';
                             await Share.share(
-                              'Doe mee met mijn MovieQuest sessie: $sessionUrl',
+                              shareText,
                               subject: 'Uitnodiging MovieQuest Sessie',
                             );
                           },

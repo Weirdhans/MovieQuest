@@ -15,6 +15,7 @@ import '../../core/providers/providers.dart';
 import '../../core/models/movie.dart';
 import '../../core/models/session_member.dart';
 import '../../core/utils/dev_log.dart';
+import '../../core/utils/url_utils.dart';
 import '../../core/interfaces/i_tmdb_service.dart';
 import '../../core/constants/responsive_constants.dart';
 import '../../shared/widgets/members_button.dart';
@@ -393,14 +394,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       return;
     }
 
-    // Get current host and port from browser
-    final currentUrl = Uri.base;
-    final host = currentUrl.host.isEmpty ? 'localhost' : currentUrl.host;
-    final port = currentUrl.port;
-    final portStr = port == 80 || port == 443 ? '' : ':$port';
-    final scheme = currentUrl.scheme;
-
-    final joinUrl = '$scheme://$host$portStr/#/?join=$sessionId';
+    // Generate join URL using dynamic URL detection
+    final joinUrl = UrlUtils.getJoinUrl(sessionId);
 
     devLog('Session link generated: $joinUrl');
 

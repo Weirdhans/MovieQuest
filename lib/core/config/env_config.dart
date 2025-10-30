@@ -15,6 +15,9 @@ class EnvConfig {
   static String get tmdbBaseUrl => getTmdbBaseUrl();
   static String get tmdbImageBase => getTmdbImageBase();
 
+  // Web App URL (for mobile share links fallback)
+  static String get webAppUrl => getWebAppUrl();
+
   /// Initialize environment variables (only needed for mobile)
   static Future<void> init() async {
     await initEnv();
