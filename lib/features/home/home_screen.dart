@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/constants/responsive_constants.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Home Screen - Entry point with MovieQuest branding
 class HomeScreen extends StatelessWidget {
@@ -8,19 +10,21 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.homeScreenMaxWidth,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // MovieQuest Logo with filmreel - New branding!
@@ -148,19 +152,21 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
 }
 
+
 /// Custom gradient button widget
 class _GradientButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final Widget child;
-
   const _GradientButton({
     required this.onPressed,
     required this.child,
   });
+
+  final VoidCallback onPressed;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

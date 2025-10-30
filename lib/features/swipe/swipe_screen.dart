@@ -16,7 +16,9 @@ import '../../core/models/movie.dart';
 import '../../core/models/session_member.dart';
 import '../../core/utils/dev_log.dart';
 import '../../core/interfaces/i_tmdb_service.dart';
+import '../../core/constants/responsive_constants.dart';
 import '../../shared/widgets/members_button.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Swipe Screen - Main movie swiping interface
 class SwipeScreen extends ConsumerStatefulWidget {
@@ -778,21 +780,23 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.swipeScreenMaxWidth,
+        child: Stack(
+          children: [
+            // Background gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
             ),
-          ),
 
-          // Main content
-          if (!_isInitialized)
+            // Main content
+            if (!_isInitialized)
             const Center(child: CircularProgressIndicator())
           else if (_movies.isEmpty)
             Center(
@@ -923,7 +927,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
               ],
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

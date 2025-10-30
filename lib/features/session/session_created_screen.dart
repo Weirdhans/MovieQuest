@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Session Created Screen - Display shareable session link after creation
 class SessionCreatedScreen extends ConsumerWidget {
@@ -33,19 +35,21 @@ class SessionCreatedScreen extends ConsumerWidget {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.formScreenMaxWidth,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo
@@ -264,6 +268,7 @@ class SessionCreatedScreen extends ConsumerWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

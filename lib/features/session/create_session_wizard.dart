@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
 import '../../core/utils/dev_log.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Multi-Step Wizard for Creating a Session
 class CreateSessionWizard extends ConsumerStatefulWidget {
@@ -52,21 +54,24 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
         title: const Text('Nieuwe Sessie'),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // Progress Indicator
-          _buildProgressIndicator(),
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.formScreenMaxWidth,
+        child: Column(
+          children: [
+            // Progress Indicator
+            _buildProgressIndicator(),
 
-          // Step Content
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _buildStepContent(),
-          ),
+            // Step Content
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildStepContent(),
+            ),
 
-          // Navigation Buttons
-          _buildNavigationButtons(),
-        ],
+            // Navigation Buttons
+            _buildNavigationButtons(),
+          ],
+        ),
       ),
     );
   }

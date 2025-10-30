@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
 import '../../core/utils/dev_log.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Join Session Screen - Enter session ID and join
 class JoinSessionScreen extends ConsumerStatefulWidget {
@@ -46,9 +48,11 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
         title: const Text('Deelnemen aan Sessie'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.formScreenMaxWidth,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -167,6 +171,7 @@ class _JoinSessionScreenState extends ConsumerState<JoinSessionScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

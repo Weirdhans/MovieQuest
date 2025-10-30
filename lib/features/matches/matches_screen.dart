@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
 import '../../core/models/match.dart';
 import '../../core/models/partial_match.dart';
@@ -9,6 +10,7 @@ import '../../core/models/movie.dart';
 import '../../core/models/session_stats.dart';
 import '../../core/utils/dev_log.dart';
 import '../../core/errors/app_error.dart';
+import '../../shared/widgets/responsive_wrapper.dart';
 import 'widgets/session_stats_card.dart';
 
 /// Matches Screen - Display all matched movies with tabs for full and partial matches
@@ -58,30 +60,33 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
           ],
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Column(
-          children: [
-            // Session Stats Card
-            _buildSessionStatsCard(),
-
-            // TabBarView with matches
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildMatchesTab(),
-                  _buildPartialMatchesTab(),
-                ],
-              ),
+      body: ResponsiveWrapper(
+        maxWidth: ResponsiveConstants.matchesScreenMaxWidth,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppTheme.darkBackground, Color(0xFF1A0E0E)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              // Session Stats Card
+              _buildSessionStatsCard(),
+
+              // TabBarView with matches
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildMatchesTab(),
+                    _buildPartialMatchesTab(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -151,18 +156,25 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
 
         final matches = matchesJson.map(Match.fromJson).toList();
 
-        return GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.7,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: matches.length,
-          itemBuilder: (context, index) {
-            final match = matches[index];
-            return _MatchCard(match: match);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive grid: 2 columns on mobile, 3 columns on desktop
+            final crossAxisCount = constraints.maxWidth >= ResponsiveConstants.mobileBreakpoint ? 3 : 2;
+
+            return GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: 0.7,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: matches.length,
+              itemBuilder: (context, index) {
+                final match = matches[index];
+                return _MatchCard(match: match);
+              },
+            );
           },
         );
       },
@@ -240,18 +252,25 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
           }
         }
 
-        return GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.7,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: partialMatches.length,
-          itemBuilder: (context, index) {
-            final partialMatch = partialMatches[index];
-            return _PartialMatchCard(partialMatch: partialMatch);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive grid: 2 columns on mobile, 3 columns on desktop
+            final crossAxisCount = constraints.maxWidth >= ResponsiveConstants.mobileBreakpoint ? 3 : 2;
+
+            return GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: 0.7,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: partialMatches.length,
+              itemBuilder: (context, index) {
+                final partialMatch = partialMatches[index];
+                return _PartialMatchCard(partialMatch: partialMatch);
+              },
+            );
           },
         );
       },
