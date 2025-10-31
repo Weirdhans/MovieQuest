@@ -148,9 +148,9 @@ class TmdbService extends BaseService implements ITmdbService {
   }) async {
     return executeWithErrorHandling(
       () async {
-        // Check cache
+        // Check cache (v2: includes English enrichment for all non-English/Dutch films)
         final excludedKey = excludedGenres?.join(',') ?? '';
-        final cacheKey = '${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$page';
+        final cacheKey = 'v2-${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$page';
         if (_moviesCache.containsKey(cacheKey)) {
           devLog('Films geladen uit cache: $cacheKey');
           return _moviesCache[cacheKey]!;
