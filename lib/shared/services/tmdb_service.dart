@@ -61,50 +61,72 @@ class TmdbService extends BaseService implements ITmdbService {
     return shuffled;
   }
 
-  /// Enrich movies with English titles when both title and original_title are non-Latin
+  /// Enrich movies with English titles for non-Dutch/English titles
   ///
-  /// For movies where both `title` and `original_title` contain non-Latin characters
-  /// (Japanese, Chinese, etc.), fetch the English title from TMDB API with `language=en-US`.
+  /// Fetches English titles from TMDB API with `language=en-US` for movies that likely
+  /// need translation (non-English/Dutch originals or non-Latin scripts).
+  ///
+  /// Strategy: Always prefer English over other languages (Spanish, French, Japanese, etc.)
+  /// Users can still see original titles on movie posters.
   ///
   /// This fixes cases like:
   /// - "劇場版 呪術廻戦 0" → "Jujutsu Kaisen 0"
-  /// - "劇場版「鬼滅の刃」" → "Demon Slayer: Mugen Train"
+  /// - "Batman Azteca: Choque de imperios" → "Aztec Batman: Clash of Empires"
+  /// - "Le Fabuleux Destin d'Amélie Poulain" → "Amélie"
   static Future<List<dynamic>> _enrichMoviesWithEnglishTitles(List<dynamic> movies) async {
     final enrichedMovies = <dynamic>[];
 
     for (final movie in movies) {
-      final title = movie['title'] as String?;
+      final currentTitle = movie['title'] as String?;
       final originalTitle = movie['original_title'] as String?;
+      final originalLanguage = movie['original_language'] as String?;
 
-      // Check if both title and original_title contain non-Latin characters
-      if (title != null && originalTitle != null &&
-          containsNonLatinScript(title) && containsNonLatinScript(originalTitle)) {
-        // Fetch English title
-        try {
-          final movieId = movie['id'] as int;
-          final response = await _dio.get<dynamic>(
-            '/movie/$movieId',
-            queryParameters: {
-              'api_key': EnvConfig.tmdbApiKey,
-              'language': 'en-US',
-            },
-          );
+      if (currentTitle == null) {
+        enrichedMovies.add(movie);
+        continue;
+      }
 
-          if (response.statusCode == 200) {
-            final data = response.data as Map<String, dynamic>;
-            final englishTitle = data['title'] as String?;
+      // Skip enrichment if:
+      // 1. Original language is already English or Dutch (no need for English fallback)
+      // 2. Title and original_title are the same AND it's Latin script (likely already English)
+      final isEnglishOrDutchOriginal = originalLanguage == 'en' || originalLanguage == 'nl';
+      final titleMatchesOriginal = currentTitle == originalTitle;
+      final isLatinScript = !containsNonLatinScript(currentTitle);
 
-            // Replace title with English version if available and readable
-            if (englishTitle != null && !containsNonLatinScript(englishTitle)) {
-              movie['title'] = englishTitle;
-              devLog('Enriched movie ${movie['id']} with English title: $englishTitle');
-            }
+      if (isEnglishOrDutchOriginal || (titleMatchesOriginal && isLatinScript)) {
+        enrichedMovies.add(movie);
+        continue;
+      }
+
+      // Fetch English title for likely non-English/Dutch films
+      try {
+        final movieId = movie['id'] as int;
+        final response = await _dio.get<dynamic>(
+          '/movie/$movieId',
+          queryParameters: {
+            'api_key': EnvConfig.tmdbApiKey,
+            'language': 'en-US',
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final data = response.data as Map<String, dynamic>;
+          final englishTitle = data['title'] as String?;
+
+          // Replace title with English version if:
+          // 1. English title exists and is different from current
+          // 2. English title is readable (Latin script)
+          if (englishTitle != null &&
+              englishTitle != currentTitle &&
+              !containsNonLatinScript(englishTitle)) {
+            movie['title'] = englishTitle;
+            devLog('Enriched movie $movieId: "$currentTitle" → "$englishTitle"');
           }
-        } catch (e) {
-          // Silently continue if enrichment fails - not critical
-          devLogError('Failed to enrich movie ${movie['id']} with English title',
-            AppError.unknown(message: e.toString()));
         }
+      } catch (e) {
+        // Silently continue if enrichment fails - not critical
+        devLogError('Failed to enrich movie ${movie['id']} with English title',
+          AppError.unknown(message: e.toString()));
       }
 
       enrichedMovies.add(movie);
