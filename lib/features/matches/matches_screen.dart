@@ -11,6 +11,7 @@ import '../../core/models/session_stats.dart';
 import '../../core/utils/dev_log.dart';
 import '../../core/errors/app_error.dart';
 import '../../shared/widgets/responsive_wrapper.dart';
+import '../../shared/widgets/user_avatar.dart';
 
 /// Matches Screen - Display all matched movies with tabs for full and partial matches
 class MatchesScreen extends ConsumerStatefulWidget {
@@ -648,25 +649,13 @@ class _PartialMatchCard extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    // Voter names below badge
+                    // Voter avatars below badge
                     if (partialMatch.voterNames.isNotEmpty) ...[
                       const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          partialMatch.voterNames.join(', '),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      VoterAvatars(
+                        voterNames: partialMatch.voterNames,
+                        avatarSize: 20,
+                        maxVisible: 3,
                       ),
                     ],
                   ],
