@@ -100,18 +100,19 @@ class Movie {
 
   /// Get display title with smart fallback
   ///
-  /// Returns a readable title by avoiding non-Latin scripts (Japanese, Chinese, Arabic, etc.)
+  /// Returns a readable title with preference: Dutch → English → Original
   /// Fallback logic:
-  /// 1. Use `title` if it contains only Latin characters
-  /// 2. Fall back to `originalTitle` if `title` has non-Latin characters
-  /// 3. If both have non-Latin characters, use `title` as last resort
+  /// 1. If `title` has non-Latin characters (Japanese, Chinese, etc.) → use `originalTitle` if readable
+  /// 2. If `originalLanguage` is English or Dutch → prefer `originalTitle`
+  /// 3. Otherwise use `title` (Dutch translation from TMDB)
   ///
   /// Examples:
   /// - title: "劇場版「鬼滅の刃」", originalTitle: "Demon Slayer: Mugen Train" → Returns "Demon Slayer: Mugen Train"
-  /// - title: "Squid Game", originalTitle: "오징어 게임" → Returns "Squid Game"
-  /// - title: "Inception", originalTitle: "Inception" → Returns "Inception"
+  /// - title: "Batman Azteca: Choque de imperios" (Spanish), originalLanguage: "en", originalTitle: "Batman Azteca: Clash of Empires" → Returns English original
+  /// - title: "Squid Game" (Dutch), originalLanguage: "ko" → Returns "Squid Game" (Dutch translation)
+  /// - title: "Inception", originalLanguage: "en" → Returns "Inception"
   String get displayTitle {
-    // Check if title contains non-Latin characters
+    // Priority 1: Avoid non-Latin scripts (Japanese, Chinese, Arabic, etc.)
     if (containsNonLatinScript(title)) {
       // Try to use originalTitle if it's readable (Latin script)
       if (originalTitle != null && !containsNonLatinScript(originalTitle!)) {
@@ -121,7 +122,16 @@ class Movie {
       return title;
     }
 
-    // Title is readable (Latin script), use it
+    // Priority 2: Prefer English/Dutch originals over other language translations
+    // If the original language is English or Dutch, use the original title
+    if (originalLanguage != null &&
+        (originalLanguage == 'en' || originalLanguage == 'nl') &&
+        originalTitle != null &&
+        originalTitle!.isNotEmpty) {
+      return originalTitle!;
+    }
+
+    // Priority 3: Use TMDB's translated title (usually Dutch if available)
     return title;
   }
 
