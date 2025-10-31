@@ -624,24 +624,52 @@ class _PartialMatchCard extends ConsumerWidget {
                 ),
               ),
 
-              // Partial match badge (orange)
+              // Partial match badge (orange) with voter names
               Positioned(
                 top: 8,
                 right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryOrange,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    partialMatch.displayText,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Badge with like count
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryOrange,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        partialMatch.displayText,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                    // Voter names below badge
+                    if (partialMatch.voterNames.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          partialMatch.voterNames.join(', '),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
 
@@ -666,23 +694,8 @@ class _PartialMatchCard extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
-                      // Show voter names
-                      if (partialMatch.voterNames.isNotEmpty) ...[
-                        Text(
-                          'Geliked door: ${partialMatch.voterNames.join(', ')}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.primaryOrange.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                      ],
                       if (movie.releaseYear != null) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           movie.releaseYear.toString(),
                           style: TextStyle(
