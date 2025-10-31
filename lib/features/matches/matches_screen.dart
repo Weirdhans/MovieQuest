@@ -397,25 +397,26 @@ class _MatchCard extends ConsumerWidget {
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     gradient: AppTheme.phoenixGradient,
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.favorite, size: 16, color: Colors.white),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${match.likesCount}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryGold.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        spreadRadius: 1,
                       ),
                     ],
+                  ),
+                  child: const Text(
+                    'MATCH!',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
@@ -666,14 +667,20 @@ class _PartialMatchCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        partialMatch.subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.primaryOrange.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w500,
+                      // Show voter names
+                      if (partialMatch.voterNames.isNotEmpty) ...[
+                        Text(
+                          'Geliked door: ${partialMatch.voterNames.join(', ')}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.primaryOrange.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
+                        const SizedBox(height: 2),
+                      ],
                       if (movie.releaseYear != null) ...[
                         const SizedBox(height: 2),
                         Text(

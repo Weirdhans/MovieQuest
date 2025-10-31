@@ -293,16 +293,14 @@ class SupabaseService extends BaseService implements ISupabaseService {
   // MATCHES
   // ============================================
 
-  /// Get all matches for a session
+  /// Get all matches for a session with likes_count calculated
   @override
   Future<Result<List<Map<String, dynamic>>>> getMatches(String sessionId) async {
     return executeWithErrorHandling(
       () async {
-        final response = await client
-            .from('matches')
-            .select()
-            .eq('session_id', sessionId)
-            .order('matched_at', ascending: false);
+        final response = await client.rpc<List<dynamic>>('get_matches_with_counts', params: {
+          'p_session_id': sessionId,
+        });
 
         devLogSuccess('${response.length} matches opgehaald');
         return List<Map<String, dynamic>>.from(response);

@@ -7,12 +7,14 @@ class PartialMatch {
     required this.likeCount,
     required this.requiredVotes,
     required this.movieData,
+    this.voterNames = const [],
   });
 
   final int movieId;
   final int likeCount;
   final int requiredVotes;
   final Map<String, dynamic> movieData;
+  final List<String> voterNames;
 
   /// Create PartialMatch from Supabase JSON
   ///
@@ -21,12 +23,14 @@ class PartialMatch {
   /// - like_count: Number of likes this movie has received
   /// - required_votes: Total votes needed for a match (from session.required_votes)
   /// - movie_data: Full TMDB movie data (title, poster, etc.)
+  /// - voter_names: Array of user names who liked this movie (optional)
   factory PartialMatch.fromJson(Map<String, dynamic> json) {
     // Parse required fields from Supabase RPC response
     final movieId = json['movie_id'];
     final likeCount = json['like_count'];
     final requiredVotes = json['required_votes'];
     final movieData = json['movie_data'];
+    final voterNames = json['voter_names'];
 
     if (movieId == null || likeCount == null || requiredVotes == null || movieData == null) {
       throw FormatException(
@@ -41,6 +45,7 @@ class PartialMatch {
       likeCount: likeCount as int,
       requiredVotes: requiredVotes as int,
       movieData: movieData as Map<String, dynamic>,
+      voterNames: voterNames != null ? List<String>.from(voterNames as List) : [],
     );
   }
 
@@ -51,6 +56,7 @@ class PartialMatch {
       'like_count': likeCount,
       'required_votes': requiredVotes,
       'movie_data': movieData,
+      'voter_names': voterNames,
     };
   }
 
@@ -75,12 +81,14 @@ class PartialMatch {
     int? likeCount,
     int? requiredVotes,
     Map<String, dynamic>? movieData,
+    List<String>? voterNames,
   }) {
     return PartialMatch(
       movieId: movieId ?? this.movieId,
       likeCount: likeCount ?? this.likeCount,
       requiredVotes: requiredVotes ?? this.requiredVotes,
       movieData: movieData ?? this.movieData,
+      voterNames: voterNames ?? this.voterNames,
     );
   }
 
