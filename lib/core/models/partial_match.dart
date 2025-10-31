@@ -30,7 +30,8 @@ class PartialMatch {
     final likeCount = json['like_count'];
     final requiredVotes = json['required_votes'];
     final movieData = json['movie_data'];
-    final voterNames = json['voter_names'];
+    // Try both 'voter_names' and 'voters' field names for backward compatibility
+    final voterNames = json['voter_names'] ?? json['voters'];
 
     if (movieId == null || likeCount == null || requiredVotes == null || movieData == null) {
       throw FormatException(
