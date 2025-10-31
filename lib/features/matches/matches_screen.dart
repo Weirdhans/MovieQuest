@@ -396,7 +396,7 @@ class _MatchCard extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        movie.title,
+                        movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -476,7 +476,7 @@ class _MatchCard extends ConsumerWidget {
                     children: [
                       // Title
                       Text(
-                        movie.title,
+                        movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -620,7 +620,7 @@ class _PartialMatchCard extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        movie.title,
+                        movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -710,7 +710,7 @@ class _PartialMatchCard extends ConsumerWidget {
                     children: [
                       // Title
                       Text(
-                        movie.title,
+                        movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

@@ -199,7 +199,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
 
     swipeResult.when(
       success: (_) {
-        devLog('Swipe recorded: ${swipedRight ? 'LIKE' : 'DISLIKE'} for ${movie.title}');
+        devLog('Swipe recorded: ${swipedRight ? 'LIKE' : 'DISLIKE'} for ${movie.displayTitle}');
 
         // Add to swipe history (keep last 5)
         setState(() {
@@ -240,7 +240,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     matchResult.when(
       success: (data) {
         if (data['is_match'] == true) {
-          devLogSuccess('MATCH! ${movie.title}');
+          devLogSuccess('MATCH! ${movie.displayTitle}');
           _showMatchNotification(movie);
           _confettiController.play();
         }
@@ -372,7 +372,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                     ),
                   ),
                   Text(
-                    movie.title,
+                    movie.displayTitle,
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],
@@ -640,7 +640,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        movie.title,
+                        movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -1002,7 +1002,7 @@ class _MovieCard extends ConsumerWidget {
                   children: [
                     // Title
                     Text(
-                      movie.title,
+                      movie.displayTitle,
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -1157,7 +1157,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                   children: [
                     // Title
                     Text(
-                      widget.movie.title,
+                      widget.movie.displayTitle,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -1271,7 +1271,7 @@ class _MovieDetailsDialogState extends ConsumerState<_MovieDetailsDialog> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        widget.movie.title,
+                        widget.movie.displayTitle,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

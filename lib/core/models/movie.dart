@@ -1,3 +1,5 @@
+import '../utils/string_utils.dart';
+
 /// Movie model - Represents a movie from TMDB
 class Movie {
   const Movie({
@@ -94,6 +96,33 @@ class Movie {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Get display title with smart fallback
+  ///
+  /// Returns a readable title by avoiding non-Latin scripts (Japanese, Chinese, Arabic, etc.)
+  /// Fallback logic:
+  /// 1. Use `title` if it contains only Latin characters
+  /// 2. Fall back to `originalTitle` if `title` has non-Latin characters
+  /// 3. If both have non-Latin characters, use `title` as last resort
+  ///
+  /// Examples:
+  /// - title: "劇場版「鬼滅の刃」", originalTitle: "Demon Slayer: Mugen Train" → Returns "Demon Slayer: Mugen Train"
+  /// - title: "Squid Game", originalTitle: "오징어 게임" → Returns "Squid Game"
+  /// - title: "Inception", originalTitle: "Inception" → Returns "Inception"
+  String get displayTitle {
+    // Check if title contains non-Latin characters
+    if (containsNonLatinScript(title)) {
+      // Try to use originalTitle if it's readable (Latin script)
+      if (originalTitle != null && !containsNonLatinScript(originalTitle!)) {
+        return originalTitle!;
+      }
+      // Both have non-Latin characters, return title as fallback
+      return title;
+    }
+
+    // Title is readable (Latin script), use it
+    return title;
   }
 
   /// Create a copy with modified fields
