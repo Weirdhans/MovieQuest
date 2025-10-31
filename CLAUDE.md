@@ -96,10 +96,10 @@ lib/
 │   ├── providers/          # Global Riverpod providers (providers.dart)
 │   ├── services/           # BaseService abstract class
 │   ├── theme/              # App theme (AppTheme.dark)
-│   └── utils/              # Dev logging utilities
+│   └── utils/              # Dev logging, URL generation, string utilities
 ├── features/               # Feature modules
 │   ├── home/              # Home screen (create/join session)
-│   ├── session/           # Session creation and joining
+│   ├── session/           # Session creation, joining, and preview screen
 │   ├── swipe/             # Movie swiping interface
 │   └── matches/           # Matches and stats display
 └── shared/                # Shared services and widgets
@@ -161,6 +161,8 @@ The [SupabaseService](lib/shared/services/supabase_service.dart) is a singleton 
 
 **Key Methods**:
 - `createSession()` - Create new session with filters
+- `getSession()` - Get session by ID
+- `getSessionPreview()` - Get session data + host info for preview screen
 - `joinSession()` - Join existing session, auto-increment member count
 - `recordSwipe()` - Record like/dislike
 - `checkAndCreateMatch()` - Check if enough votes exist for a match (uses `check_and_create_match_v2` RPC)
@@ -238,15 +240,57 @@ Users who don't provide a name get auto-generated movie-themed names:
 
 See [session_member.dart](lib/core/models/session_member.dart) for the name generation algorithm.
 
+### Smart Movie Title Display
+
+Movies are displayed with intelligent title fallback to ensure readability for Dutch/English users:
+
+**Display Logic** ([Movie.displayTitle](lib/core/models/movie.dart)):
+1. Check if `title` contains non-Latin characters (Japanese, Chinese, Korean, Arabic, etc.)
+2. If yes, try using `originalTitle` as fallback if it's readable (Latin script)
+3. If both have non-Latin characters, use `title` as last resort
+
+**Examples:**
+- `title: "劇場版「鬼滅の刃」"`, `originalTitle: "Demon Slayer: Mugen Train"` → Shows "Demon Slayer: Mugen Train"
+- `title: "Squid Game"`, `originalTitle: "오징어 게임"` → Shows "Squid Game"
+
+**Implementation:**
+- [string_utils.dart](lib/core/utils/string_utils.dart): `containsNonLatinScript()` detects 10+ writing systems
+- [movie.dart](lib/core/models/movie.dart): `displayTitle` getter with automatic fallback
+- All movie titles across the app use `movie.displayTitle` instead of `movie.title`
+
+**Benefits:**
+- Zero extra API calls (uses existing TMDB data)
+- Automatic detection, no manual configuration
+- Preserves full movie library (anime, K-dramas remain available)
+
 ### User ID Management
 
 Each device gets a persistent UUID stored in SharedPreferences via `UtilsService`. This identifies users without requiring authentication.
 
-### Route Handling
+### Deep Linking & Route Handling
 
-The app supports deep linking for joining sessions via URL: `/?join=SESSION_ID`
+The app supports deep linking for joining sessions via shareable URLs and QR codes.
 
-See [main.dart](lib/main.dart) `onGenerateRoute` for route parsing.
+**URL Formats:**
+- **Modern (primary)**: `/join/SESSION_ID` - Clean, shareable URLs
+- **Legacy (backward compatible)**: `/?join=SESSION_ID` - Redirects to session preview
+
+**Flow:**
+1. User scans QR code or opens join link
+2. [SessionPreviewScreen](lib/features/session/session_preview_screen.dart) shows session details:
+   - Host name, member count, active filters (streaming providers, genres, age rating)
+   - Optional username input
+   - One-click join button
+3. Error handling for invalid/expired sessions
+4. After joining → Navigate to swipe screen
+
+**Implementation Details:**
+- **URL Strategy**: Uses `usePathUrlStrategy()` on web for clean URLs without `#` fragments
+- **Route Parsing**: [main.dart](lib/main.dart) `onGenerateRoute` handles both URL formats
+- **URL Generation**: [url_utils.dart](lib/core/utils/url_utils.dart) generates join URLs with automatic environment detection
+- **Preview Data**: [SupabaseService.getSessionPreview()](lib/shared/services/supabase_service.dart) fetches session + host info
+
+See [main.dart](lib/main.dart) `onGenerateRoute` for complete routing logic.
 
 ## Testing
 
