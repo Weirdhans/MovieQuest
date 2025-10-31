@@ -124,6 +124,39 @@ class SupabaseService extends BaseService implements ISupabaseService {
     );
   }
 
+  /// Get session preview data (session + host info + member count)
+  Future<Result<Map<String, dynamic>>> getSessionPreview(String sessionId) async {
+    return executeWithErrorHandling(
+      () async {
+        // Fetch session data
+        final session = await client
+            .from('sessions')
+            .select()
+            .eq('id', sessionId)
+            .single();
+
+        // Fetch host member info
+        final hostMember = await client
+            .from('session_members')
+            .select('user_name')
+            .eq('session_id', sessionId)
+            .eq('user_id', session['host_user_id'] as String)
+            .maybeSingle();
+
+        // Combine data
+        final preview = {
+          ...session,
+          'host_name': hostMember?['user_name'] ?? 'Host',
+        };
+
+        devLogSuccess('Session preview opgehaald: $sessionId');
+        return preview;
+      },
+      'getSessionPreview',
+      metadata: {'sessionId': sessionId},
+    );
+  }
+
   /// Join existing session
   @override
   Future<Result<Map<String, dynamic>>> joinSession({

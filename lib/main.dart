@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/app_theme.dart';
 import 'shared/services/supabase_service.dart';
@@ -7,11 +9,17 @@ import 'features/home/home_screen.dart';
 import 'features/session/create_session_wizard.dart';
 import 'features/session/session_created_screen.dart';
 import 'features/session/join_session_screen.dart';
+import 'features/session/session_preview_screen.dart';
 import 'features/swipe/swipe_screen.dart';
 import 'features/matches/matches_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Use path URL strategy for clean URLs on web (removes # from URLs)
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
 
   // Initialize environment variables
   await EnvConfig.init();
@@ -42,26 +50,30 @@ class MovieQuestApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       onGenerateRoute: (settings) {
-        // Check if this is a route with join parameter (e.g., "/?join=xxx")
-        if (settings.name != null && settings.name!.contains('join=')) {
-          // Extract session ID from route name
-          final routeName = settings.name!;
-          final joinIndex = routeName.indexOf('join=');
-          if (joinIndex != -1) {
-            final afterJoin = routeName.substring(joinIndex + 5);
-            final endIndex = afterJoin.indexOf('&');
-            final sessionId = endIndex == -1 ? afterJoin : afterJoin.substring(0, endIndex);
+        final uri = Uri.parse(settings.name ?? '/');
 
-            // Navigate directly to join session screen with the ID
+        // Handle new deep link format: /join/SESSION_ID
+        if (uri.pathSegments.isNotEmpty && uri.pathSegments[0] == 'join') {
+          if (uri.pathSegments.length > 1) {
+            final sessionId = uri.pathSegments[1];
             return MaterialPageRoute(
-              builder: (context) => const JoinSessionScreen(),
-              settings: RouteSettings(arguments: sessionId),
+              builder: (context) => SessionPreviewScreen(sessionId: sessionId),
+            );
+          }
+        }
+
+        // Handle legacy deep link format: /?join=SESSION_ID (for backward compatibility)
+        if (uri.queryParameters.containsKey('join')) {
+          final sessionId = uri.queryParameters['join'];
+          if (sessionId != null && sessionId.isNotEmpty) {
+            return MaterialPageRoute(
+              builder: (context) => SessionPreviewScreen(sessionId: sessionId),
             );
           }
         }
 
         // Default routes
-        switch (settings.name) {
+        switch (uri.path) {
           case '/':
             return MaterialPageRoute(builder: (context) => const HomeScreen());
           case '/create-session':

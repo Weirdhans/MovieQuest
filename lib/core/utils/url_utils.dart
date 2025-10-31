@@ -38,9 +38,9 @@ class UrlUtils {
 
   /// Generates a join URL for a session.
   ///
-  /// Example: https://movie-quests.vercel.app/?join=abc123
+  /// Example: https://movie-quests.vercel.app/join/abc123
   static String getJoinUrl(String sessionId) {
-    return '${getBaseUrl()}/?join=$sessionId';
+    return '${getBaseUrl()}/join/$sessionId';
   }
 
   /// Generates share text for a session with join URL.

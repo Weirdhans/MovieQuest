@@ -15,6 +15,7 @@ abstract class ISupabaseService {
     List<String>? excludedGenres,
   });
   Future<Result<Map<String, dynamic>>> getSession(String sessionId);
+  Future<Result<Map<String, dynamic>>> getSessionPreview(String sessionId);
   Future<Result<Map<String, dynamic>>> joinSession({
     required String sessionId,
     required String userId,
