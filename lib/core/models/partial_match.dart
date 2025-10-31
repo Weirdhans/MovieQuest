@@ -41,6 +41,9 @@ class PartialMatch {
       );
     }
 
+    // Debug: Print voter names
+    print('🔍 [PartialMatch] movieId=$movieId, voterNames=$voterNames (type: ${voterNames.runtimeType})');
+
     return PartialMatch(
       movieId: movieId as int,
       likeCount: likeCount as int,
