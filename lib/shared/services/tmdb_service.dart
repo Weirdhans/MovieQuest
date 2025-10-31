@@ -5,6 +5,7 @@ import '../../core/services/base_service.dart';
 import '../../core/errors/result.dart';
 import '../../core/errors/app_error.dart';
 import '../../core/utils/dev_log.dart';
+import '../../core/utils/string_utils.dart';
 import '../../core/interfaces/i_tmdb_service.dart';
 
 /// TMDB Service - Handles all TMDB API interactions
@@ -58,6 +59,58 @@ class TmdbService extends BaseService implements ITmdbService {
     }
 
     return shuffled;
+  }
+
+  /// Enrich movies with English titles when both title and original_title are non-Latin
+  ///
+  /// For movies where both `title` and `original_title` contain non-Latin characters
+  /// (Japanese, Chinese, etc.), fetch the English title from TMDB API with `language=en-US`.
+  ///
+  /// This fixes cases like:
+  /// - "劇場版 呪術廻戦 0" → "Jujutsu Kaisen 0"
+  /// - "劇場版「鬼滅の刃」" → "Demon Slayer: Mugen Train"
+  static Future<List<dynamic>> _enrichMoviesWithEnglishTitles(List<dynamic> movies) async {
+    final enrichedMovies = <dynamic>[];
+
+    for (final movie in movies) {
+      final title = movie['title'] as String?;
+      final originalTitle = movie['original_title'] as String?;
+
+      // Check if both title and original_title contain non-Latin characters
+      if (title != null && originalTitle != null &&
+          containsNonLatinScript(title) && containsNonLatinScript(originalTitle)) {
+        // Fetch English title
+        try {
+          final movieId = movie['id'] as int;
+          final response = await _dio.get<dynamic>(
+            '/movie/$movieId',
+            queryParameters: {
+              'api_key': EnvConfig.tmdbApiKey,
+              'language': 'en-US',
+            },
+          );
+
+          if (response.statusCode == 200) {
+            final data = response.data as Map<String, dynamic>;
+            final englishTitle = data['title'] as String?;
+
+            // Replace title with English version if available and readable
+            if (englishTitle != null && !containsNonLatinScript(englishTitle)) {
+              movie['title'] = englishTitle;
+              devLog('Enriched movie ${movie['id']} with English title: $englishTitle');
+            }
+          }
+        } catch (e) {
+          // Silently continue if enrichment fails - not critical
+          devLogError('Failed to enrich movie ${movie['id']} with English title',
+            AppError.unknown(message: e.toString()));
+        }
+      }
+
+      enrichedMovies.add(movie);
+    }
+
+    return enrichedMovies;
   }
 
   /// Fetch movies from TMDB Discover API with filters
@@ -123,6 +176,11 @@ class TmdbService extends BaseService implements ITmdbService {
         if (response.statusCode == 200) {
           final data = response.data as Map<String, dynamic>;
           List<dynamic> results = (data['results'] as List<dynamic>?) ?? [];
+
+          // Enrich movies with English titles for non-Latin scripts
+          if (results.isNotEmpty) {
+            results = await _enrichMoviesWithEnglishTitles(results);
+          }
 
           // Apply seeded shuffle if sessionId provided
           if (sessionId != null && results.isNotEmpty) {
