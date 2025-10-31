@@ -11,7 +11,6 @@ import '../../core/models/session_stats.dart';
 import '../../core/utils/dev_log.dart';
 import '../../core/errors/app_error.dart';
 import '../../shared/widgets/responsive_wrapper.dart';
-import 'widgets/session_stats_card.dart';
 
 /// Matches Screen - Display all matched movies with tabs for full and partial matches
 class MatchesScreen extends ConsumerStatefulWidget {
@@ -49,15 +48,26 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
       appBar: AppBar(
         title: const Text('Matches'),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppTheme.primaryGold,
-          labelColor: AppTheme.primaryGold,
-          unselectedLabelColor: AppTheme.neutralGray,
-          tabs: const [
-            Tab(text: 'Volledige Matches'),
-            Tab(text: 'Gedeeltelijke Matches'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(90),
+          child: Column(
+            children: [
+              // Compact stats row
+              _buildCompactStatsRow(),
+              const SizedBox(height: 8),
+              // Tabs
+              TabBar(
+                controller: _tabController,
+                indicatorColor: AppTheme.primaryGold,
+                labelColor: AppTheme.primaryGold,
+                unselectedLabelColor: AppTheme.neutralGray,
+                tabs: const [
+                  Tab(text: 'Volledige Matches'),
+                  Tab(text: 'Gedeeltelijke Matches'),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       body: ResponsiveWrapper(
@@ -70,21 +80,11 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
               end: Alignment.bottomCenter,
             ),
           ),
-          child: Column(
+          child: TabBarView(
+            controller: _tabController,
             children: [
-              // Session Stats Card
-              _buildSessionStatsCard(),
-
-              // TabBarView with matches
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildMatchesTab(),
-                    _buildPartialMatchesTab(),
-                  ],
-                ),
-              ),
+              _buildMatchesTab(),
+              _buildPartialMatchesTab(),
             ],
           ),
         ),
@@ -92,7 +92,8 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
     );
   }
 
-  Widget _buildSessionStatsCard() {
+  /// Compact stats row - shows key metrics in inline badges
+  Widget _buildCompactStatsRow() {
     final statsAsync = ref.watch(sessionStatsProvider);
 
     return statsAsync.when(
@@ -102,12 +103,47 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
         }
 
         final stats = SessionStats.fromJson(statsJson);
-        return SessionStatsCard(stats: stats);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Members badge
+              _CompactStatBadge(
+                icon: '👥',
+                value: stats.memberCount.toString(),
+                color: AppTheme.primaryGold,
+              ),
+              const SizedBox(width: 12),
+              const Text('|', style: TextStyle(color: AppTheme.neutralGray)),
+              const SizedBox(width: 12),
+              // Like ratio badge
+              _CompactStatBadge(
+                icon: '❤️',
+                value: '${stats.likePercentage.toStringAsFixed(0)}%',
+                color: const Color(0xFF22C55E), // Green
+              ),
+              const SizedBox(width: 12),
+              const Text('|', style: TextStyle(color: AppTheme.neutralGray)),
+              const SizedBox(width: 12),
+              // Total swipes badge
+              _CompactStatBadge(
+                icon: '📊',
+                value: stats.totalSwipes.toString(),
+                color: AppTheme.primaryOrange,
+              ),
+            ],
+          ),
+        );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.all(16),
+      loading: () => const SizedBox(
+        height: 40,
         child: Center(
-          child: CircularProgressIndicator(),
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
         ),
       ),
       error: (error, stack) => const SizedBox.shrink(),
@@ -758,6 +794,49 @@ class _PartialMatchCard extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Compact stat badge widget - shows icon + value in minimal space
+class _CompactStatBadge extends StatelessWidget {
+  final String icon;
+  final String value;
+  final Color color;
+
+  const _CompactStatBadge({
+    required this.icon,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
