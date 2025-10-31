@@ -471,19 +471,28 @@ class _SessionPreviewScreenState extends ConsumerState<SessionPreviewScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: items.map((item) => Chip(
-            label: Text(item),
-            backgroundColor: AppTheme.primaryGold.withValues(alpha: 0.2),
-            labelStyle: const TextStyle(
-              color: AppTheme.primaryGold,
-              fontSize: 12,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          )).toList(),
-        ),
+        items.isEmpty
+            ? Text(
+                'Geen filters - alle opties toegestaan',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  fontStyle: FontStyle.italic,
+                ),
+              )
+            : Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: items.map((item) => Chip(
+                  label: Text(item),
+                  backgroundColor: AppTheme.primaryGold.withValues(alpha: 0.2),
+                  labelStyle: const TextStyle(
+                    color: AppTheme.primaryGold,
+                    fontSize: 12,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                )).toList(),
+              ),
       ],
     );
   }
