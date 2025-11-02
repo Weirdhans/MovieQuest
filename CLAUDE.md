@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**MovieQuest** is a Flutter mobile app that allows groups of users to discover movies together through a Tinder-style swipe interface. Users create or join sessions, swipe on movies with shared filters (streaming providers, genres, age ratings), and when enough members like the same movie, it becomes a match.
+**MovieQuest** is a Flutter mobile app that allows groups of users to discover movies together through a Tinder-style swipe interface. Users create or join sessions, swipe on movies with shared filters (streaming providers, genres, age ratings, minimum rating, release year range, sort order), and when enough members like the same movie, it becomes a match.
 
 This is a Flutter mobile port of a web application and shares the same Supabase backend.
 
@@ -149,6 +149,7 @@ All providers are centralized in [core/providers/providers.dart](lib/core/provid
 - `sessionMembersProvider` - Live member swipe counts (auto-refreshes)
 - `sessionMatchesProvider` - Session matches
 - `sessionStatsProvider` - Session statistics
+- `movieProvidersProvider` - Streaming provider info per movie (lazy loaded, cached)
 
 **UI State**:
 - `isLoadingProvider` - Global loading state
@@ -160,7 +161,7 @@ All providers are centralized in [core/providers/providers.dart](lib/core/provid
 The [SupabaseService](lib/shared/services/supabase_service.dart) is a singleton that wraps all backend operations:
 
 **Key Methods**:
-- `createSession()` - Create new session with filters
+- `createSession()` - Create new session with filters (providers, genres, age rating, min rating, year range, sort order)
 - `getSession()` - Get session by ID
 - `getSessionPreview()` - Get session data + host info for preview screen
 - `joinSession()` - Join existing session, auto-increment member count
@@ -183,14 +184,18 @@ The [SupabaseService](lib/shared/services/supabase_service.dart) is a singleton 
 The [TmdbService](lib/shared/services/tmdb_service.dart) handles movie data:
 
 **Key Features**:
-- **Seeded Shuffle**: Movies are shuffled using session ID as seed, ensuring all members see the same order
-- **Caching**: API responses are cached to prevent duplicate calls
-- **Discover API**: Fetches movies with filters (providers, genres, certifications)
+- **Advanced Filtering**: Supports streaming providers, genres, age ratings, minimum TMDB rating (1.0-10.0), and release year range (1888-current year)
+- **Flexible Sorting**: 8 sort options including popularity, rating, release date, title (A-Z/Z-A), and random
+- **Seeded Shuffle**: When "random" sort is selected, movies are shuffled using session ID as seed, ensuring all members see the same order
+- **Caching**: API responses and streaming provider data are cached to prevent duplicate calls
+- **Discover API**: Fetches movies with all filter and sort parameters passed to TMDB
 - **Trailer Fetching**: Multi-language priority fallback (Dutch Official → English Official → Dutch Trailer → English Trailer → Teaser)
 - **Prefetching**: Next page can be prefetched for smooth UX
+- **Provider Badges**: Lazy loading of streaming provider logos per movie card
 
 **Methods**:
-- `fetchMovies()` - Fetch with filters, returns seeded-shuffled results
+- `fetchMovies()` - Fetch with filters (providers, genres, certification, rating, year range, sort), returns sorted/shuffled results
+- `fetchMovieProviders()` - Get streaming provider info for a specific movie (NL region, flatrate only)
 - `fetchMovieTrailer()` - Get YouTube trailer key with language fallback
 - `getMovieDetails()` - Fetch detailed movie info
 - `searchMovies()` - Search by title
@@ -206,9 +211,51 @@ The [TmdbService](lib/shared/services/tmdb_service.dart) handles movie data:
 
 ## Key Implementation Details
 
-### Seeded Random Shuffle
+### Advanced Filtering and Sorting
 
-Movies are shuffled deterministically based on session ID so all users see the same order. This uses the **mulberry32** PRNG algorithm with Fisher-Yates shuffle. See `TmdbService._seededShuffle()`.
+**Session-Level Configuration**: All filter and sort options are configured during session creation (Step 3 of CreateSessionWizard) and stored in the Session model. This ensures all members see movies in the same filtered and sorted order.
+
+**Filter Options**:
+- **Minimum Rating**: Slider from 1.0 to 10.0 (steps of 0.5) - filters movies by TMDB `vote_average.gte`
+- **Release Year Range**: Dual slider from 1888 (first film in TMDB) to current year - filters by `primary_release_date.gte/lte`
+- Both filters are optional and backward compatible (NULL = no filter applied)
+
+**Sort Options**:
+1. Populariteit (hoog-laag) - `popularity.desc` (default)
+2. Populariteit (laag-hoog) - `popularity.asc`
+3. Rating (hoog-laag) - `vote_average.desc`
+4. Rating (laag-hoog) - `vote_average.asc`
+5. Verschijningsdatum (nieuw-oud) - `primary_release_date.desc`
+6. Verschijningsdatum (oud-nieuw) - `primary_release_date.asc`
+7. Titel (A-Z) - `title.asc`
+8. Titel (Z-A) - `title.desc`
+9. 🎲 Willekeurig - `random` (applies seeded shuffle)
+
+**Seeded Random Shuffle**: When "🎲 Willekeurig" is selected, movies are shuffled deterministically using the session ID as seed. This ensures all members see the same random order. Uses the **mulberry32** PRNG algorithm with Fisher-Yates shuffle. See `TmdbService._seededShuffle()`.
+
+**Implementation**: The `sortBy` parameter is passed to TMDB API for all non-random sorts. When `sortBy == 'random'`, the API uses default popularity sort, then applies seeded shuffle to results.
+
+### Streaming Provider Badges
+
+Movies display which streaming services offer them, both in swipe cards and match screens.
+
+**Implementation**:
+- **Lazy Loading**: Provider data is fetched per-card as needed (not for entire list)
+- **Caching**: Results are cached in `TmdbService._providersCache` to minimize API calls
+- **API Endpoint**: Uses TMDB `/movie/{id}/watch/providers` endpoint
+- **Region Filter**: Only shows NL (Netherlands) region flatrate providers (subscriptions)
+- **Display**: Circular provider logos with names shown in top-right of movie cards
+
+**Provider Data Structure**:
+```dart
+{
+  'provider_id': int,
+  'provider_name': String,
+  'logo_path': String,
+}
+```
+
+See `TmdbService.fetchMovieProviders()` and `movieProvidersProvider` in [providers.dart](lib/core/providers/providers.dart).
 
 ### Real-time Features
 
@@ -368,24 +415,30 @@ The project uses Notion for task and feature tracking:
 
 5. **Created** (Created Time): Auto-tracked creation timestamp
 
-### Current High Priority Features
+### Recently Implemented Features
 
-These features are currently marked as High Priority:
+The following high-priority features have been implemented (as of 2025-01):
 
-1. **Sorteer functie op rating, naam, etc** (`UI`, `UX`, `TMDB`)
-   - Enable sorting movies by rating, name, release date
+1. ✅ **Sorteer functie op rating, naam, etc** (`UI`, `UX`, `TMDB`)
+   - 8 sort options including popularity, rating, release date, title (A-Z/Z-A), and random
+   - Implemented in CreateSessionWizard Step 3
 
-2. **Streaming dienst info in swipe cards en matches** (`UI`, `UX`, `API Integration`, `Streaming`)
-   - Display which streaming service offers each movie
+2. ✅ **Streaming dienst info in swipe cards en matches** (`UI`, `UX`, `API Integration`, `Streaming`)
+   - Provider badges show on movie cards and match details
+   - Lazy loaded per-card with caching
 
-3. **Filter voor minimale film rating** (`UX`, `TMDB`, `Backend`)
-   - Allow filtering movies by minimum TMDB rating (e.g., min 8.0)
+3. ✅ **Filter voor minimale film rating** (`UX`, `TMDB`, `Backend`)
+   - Slider from 1.0-10.0 in session creation
+   - Filters via TMDB `vote_average.gte` parameter
 
-4. **Filter voor jaargetal** (`UX`, `TMDB`, `Backend`)
-   - Filter movies by release year range
+4. ✅ **Filter voor jaargetal** (`UX`, `TMDB`, `Backend`)
+   - Year range slider (1888 - current year)
+   - Filters via TMDB `primary_release_date.gte/lte`
 
-5. **Sorteer functie voor jaargetal** (`UI`, `UX`, `TMDB`)
-   - Sort movies by release year
+5. ✅ **Sorteer functie voor jaargetal** (`UI`, `UX`, `TMDB`)
+   - Included in sort dropdown as "Verschijningsdatum (nieuw-oud)" and "Verschijningsdatum (oud-nieuw)"
+
+**Database Changes**: Added 4 new columns to `sessions` table: `min_rating`, `min_year`, `max_year`, `sort_by` (all nullable for backward compatibility).
 
 ### Workflow Guidelines
 
