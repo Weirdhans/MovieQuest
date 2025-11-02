@@ -229,8 +229,8 @@ class TmdbService extends BaseService implements ITmdbService {
             results = await _enrichMoviesWithEnglishTitles(results);
           }
 
-          // Apply seeded shuffle if sessionId provided
-          if (sessionId != null && results.isNotEmpty) {
+          // Apply seeded shuffle ONLY if sortBy is 'random' and sessionId provided
+          if (sortBy == 'random' && sessionId != null && results.isNotEmpty) {
             results = _seededShuffle(results, sessionId);
           }
 
