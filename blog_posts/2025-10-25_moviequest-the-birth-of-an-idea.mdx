@@ -1,0 +1,153 @@
+---
+title: "MovieQuest - The Birth of an Idea"
+date: "2025-10-25"
+project: "MovieQuest"
+tags: ["announcement", "feature"]
+summary: "What if choosing a movie with friends was as fun as swiping on Tinder? The story of how MovieQuest was born in a single evening."
+author: "Hans"
+published: true
+coverImage: "/blog/moviequest-announcement-birth.png"
+---
+
+## The Problem We All Know
+
+Picture this: Friday evening, you and your friends want to watch a movie together. Someone suggests browsing Netflix. Twenty minutes later, you're still scrolling through endless titles, everyone has different opinions, and the excitement is fading.
+
+Sound familiar?
+
+That's the problem we set out to solve. Not with yet another recommendation algorithm, but with something simpler and more fun: **group swiping**.
+
+## The Idea: Tinder for Movies
+
+What if choosing a movie felt like Tinder?
+
+- Everyone swipes independently on the same pool of films
+- Swipe right if you'd watch it, left if you'd skip it
+- When everyone agrees → instant match!
+- No endless discussions, just swipe and discover
+
+The concept was simple. The execution? We'd find out.
+
+## Building MovieQuest V2
+
+Today we launched **MovieQuest** (originally called Movie Matcher). Not a prototype or MVP - a fully-featured web app with everything we wanted:
+
+### Core Features
+
+**Smart Filtering**
+Before you even start swiping, you set up the session:
+- **Streaming providers**: Only show movies from Netflix, Disney+, services you actually have
+- **Genres**: Action, comedy, drama - pick what the group is in the mood for
+- **Age rating**: Family-friendly only, or anything goes?
+
+**Flexible Matching**
+Not every group is the same size. Maybe it's just you and a friend (need 2 votes). Maybe it's a family of 5 (need 5 votes). MovieQuest lets you set the **match threshold** - how many likes a movie needs before it's a match.
+
+**Undo & Second Chances**
+Swiped left on accident? Hit undo. We've all been there.
+
+**Partial Matches**
+See movies that *almost* matched. "This one has 3 out of 4 votes - maybe give it another look?"
+
+**Real-time Member Tracking**
+A live widget shows who's in the session and how many movies everyone has swiped. No more wondering if your friend is even participating.
+
+### The Tech Stack
+
+We chose simplicity and speed:
+
+**Frontend:**
+- Plain HTML5, CSS, and JavaScript (no heavy frameworks)
+- Alpine.js for reactivity (lightweight, easy to learn)
+- Tailwind CSS for styling (utility-first, fast prototyping)
+- Hammer.js for swipe gestures (mobile-friendly touch controls)
+
+**Backend:**
+- Supabase for database (PostgreSQL + real-time updates)
+- TMDB API for movie data (the same database Netflix uses)
+
+**Deployment:**
+- Vercel (one-click deploy, automatic HTTPS, fast CDN)
+
+### Why Web-First?
+
+We wanted to launch fast. Building for web meant:
+- ✅ Works on any device (phones, tablets, laptops)
+- ✅ No app store approvals
+- ✅ Share via link (no downloads needed)
+- ✅ One codebase to maintain
+
+Perfect for validating the idea.
+
+## How It Works (User Flow)
+
+### 1. Host Creates a Session
+- Pick streaming providers (Netflix, Disney+, Amazon Prime, etc.)
+- Select genres (Action, Comedy, Horror, etc.)
+- Set age rating limit (family mode or everything)
+- Choose match threshold (how many votes needed)
+- Click "Create Session"
+
+### 2. Invite Your Group
+- Share the session link
+- Everyone joins (optional: add your name)
+- No accounts needed - just open the link and go
+
+### 3. Swipe Together
+- Everyone sees the same movies (based on filters)
+- Swipe right = "I'd watch this"
+- Swipe left = "Not interested"
+- Use undo if you change your mind
+- See live progress in the members widget
+
+### 4. Discover Matches
+- When enough people like the same movie → match!
+- See full details: poster, description, rating, trailer
+- Check partial matches for movies that almost made it
+
+### 5. Pick & Watch
+- Browse all your matches
+- Pick one together
+- Finally watch something everyone actually wants to see
+
+## What Makes It Special
+
+**No More Decision Fatigue**
+Instead of debating endlessly, you just swipe. Fast, fun, decisive.
+
+**Everyone Gets a Voice**
+No single person dominates the choice. Democracy through swiping.
+
+**Smart Filtering**
+Only see movies you can actually watch (based on your streaming services and preferences).
+
+**Real-time Sync**
+Everyone sees matches instantly. No refreshing, no waiting.
+
+**Mobile-Friendly**
+Built for phones first. Swipe with your thumb while sitting on the couch.
+
+## Launch Stats
+
+From idea to deployed web app in **one evening**:
+- Initial commit: 18:56 (6:56 PM)
+- First deployment to Vercel: 19:32 (7:32 PM)
+- Fully functional with all features
+
+Built with Claude Code (AI pair programming) - which is why we could move so fast.
+
+## What's Next
+
+The app is live and working, but we already know what needs improvement:
+- Mobile layout could be better
+- Swipe gestures need tuning
+- Responsive design for all screen sizes
+- Real-world testing with actual users
+
+Tomorrow we'll see how it holds up. For now, MovieQuest is born.
+
+---
+
+**MovieQuest** - Swipe. Match. Watch Together.
+
+Try it now at [movie-quests.vercel.app](http://movie-quests.vercel.app/) - no signup required.
