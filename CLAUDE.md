@@ -396,24 +396,32 @@ The project uses Notion for task and feature tracking:
 **Properties:**
 
 1. **Name** (Title): Task/idea description
-2. **Type** (Select):
+
+2. **Status** (Select) - Workflow tracking:
+   - `Idea` (Gray) - Initial concept, not yet planned
+   - `Todo` (Yellow) - Approved and ready to implement
+   - `In Progress` (Blue) - Currently being worked on
+   - `Done` (Green) - Implemented and completed
+   - `Archived` (Red) - No longer relevant or cancelled
+
+3. **Type** (Select):
    - `Idea` - Initial concepts and suggestions
    - `Feature` - Confirmed features to implement
    - `Bug` - Issues to fix
    - `Improvement` - Enhancements to existing functionality
    - `Research` - Investigation tasks
 
-3. **Priority** (Select):
+4. **Priority** (Select):
    - `Urgent` (Red) - Critical, needs immediate attention
    - `High` (Orange) - Important, high priority
    - `Medium` (Yellow) - Standard priority
    - `Low` (Green) - Nice to have
 
-4. **Labels** (Multi-select):
+5. **Labels** (Multi-select):
    - `UI`, `UX`, `Backend`, `API Integration`
    - `Performance`, `Design`, `TMDB`, `Streaming`
 
-5. **Created** (Created Time): Auto-tracked creation timestamp
+6. **Created** (Created Time): Auto-tracked creation timestamp
 
 ### Recently Implemented Features
 
@@ -444,15 +452,18 @@ The following high-priority features have been implemented (as of 2025-01):
 
 **For Claude Code:**
 - Check Notion database for context and priority before implementing features
-- Update task status and add implementation notes in Notion via MCP
+- Update task Status (Idea → Todo → In Progress → Done) as work progresses
+- Add implementation notes as comments when marking tasks as Done
 - Link related tasks when dependencies exist
 - Use Labels to understand which parts of codebase are affected
 
 **Adding New Ideas:**
-- Add to Notion database with Type: "Idea"
+- Add to Notion database with Status: "Idea" and Type: "Idea"
 - Assign appropriate Labels based on affected areas
 - Priority starts at "Medium" unless urgent
-- Convert to "Feature" type once approved for implementation
+- Move to Status: "Todo" and Type: "Feature" once approved for implementation
+- Add Status: "In Progress" when actively working on the task
+- Mark as Status: "Done" with implementation comment when completed
 
 **From User Testing:**
 - UX insights from user testing should be added as separate tasks
