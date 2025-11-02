@@ -345,6 +345,7 @@ class _MatchCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final movie = match.movie;
     final tmdbService = ref.watch(tmdbServiceProvider);
+    final providersAsync = ref.watch(movieProvidersProvider(movie.id));
 
     return GestureDetector(
       onTap: () => _showMovieDetails(context, movie, ref),
@@ -452,6 +453,53 @@ class _MatchCard extends ConsumerWidget {
                             color: Colors.white.withValues(alpha: 0.8),
                           ),
                         ),
+                      const SizedBox(height: 6),
+                      // Provider chips
+                      providersAsync.when(
+                        data: (providers) {
+                          if (providers.isEmpty) return const SizedBox.shrink();
+
+                          return Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: providers.take(3).map((p) => Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: AppTheme.primaryGold.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 8,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                      'https://image.tmdb.org/t/p/original${p['logo_path']}',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    p['provider_name'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )).toList(),
+                          );
+                        },
+                        loading: () => const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        error: (_, __) => const SizedBox.shrink(),
+                      ),
                     ],
                   ),
                 ),

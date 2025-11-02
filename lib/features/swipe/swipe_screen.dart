@@ -117,7 +117,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
             : <String>[];
 
         // Fetch movies from TMDB
-        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId, session);
       },
       error: (error) {
         devLogError('Failed to get session', error);
@@ -133,6 +133,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     String genreMatchMode,
     List<String> excludedGenres,
     String sessionId,
+    Map<String, dynamic> session,  // Full session data for filters
   ) async {
     final tmdbService = ref.read(tmdbServiceProvider);
     final result = await tmdbService.fetchMovies(
@@ -143,6 +144,10 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       excludedGenres: excludedGenres.isNotEmpty ? excludedGenres : null,
       sessionId: sessionId,
       page: _currentPage,
+      minRating: session['min_rating'] as double?,
+      minYear: session['min_year'] as int?,
+      maxYear: session['max_year'] as int?,
+      sortBy: session['sort_by'] as String? ?? 'popularity.desc',
     );
 
     result.when(
@@ -275,7 +280,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
             ? (session['excluded_genres'] as List<dynamic>).map((e) => e.toString()).toList()
             : <String>[];
 
-        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId);
+        await _fetchMovies(providers, genres, maxCertification, genreMatchMode, excludedGenres, sessionId, session);
         setState(() => _isLoadingMore = false);
       },
       error: (error) {
@@ -938,6 +943,7 @@ class _MovieCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tmdbService = ref.watch(tmdbServiceProvider);
+    final providersAsync = ref.watch(movieProvidersProvider(movie.id));
 
     return Container(
       decoration: BoxDecoration(
@@ -987,6 +993,60 @@ class _MovieCard extends ConsumerWidget {
                   ],
                   stops: const [0.5, 0.8, 1.0],
                 ),
+              ),
+            ),
+
+            // Provider Badges (top-right)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: providersAsync.when(
+                data: (providers) {
+                  if (providers.isEmpty) return const SizedBox.shrink();
+
+                  final visible = providers.take(3).toList();
+                  final remaining = providers.length - visible.length;
+
+                  return Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...visible.map((p) => Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: CircleAvatar(
+                            radius: 12,
+                            backgroundImage: CachedNetworkImageProvider(
+                              'https://image.tmdb.org/t/p/original${p['logo_path']}',
+                            ),
+                          ),
+                        )),
+                        if (remaining > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryGold,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '+$remaining',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
               ),
             ),
 

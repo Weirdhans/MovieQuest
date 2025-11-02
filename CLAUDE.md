@@ -333,6 +333,93 @@ The same Flutter/Dart codebase supports multiple platforms:
 
 All platforms share the same Supabase backend and Riverpod state management.
 
+## Project Management
+
+### Notion Database
+
+The project uses Notion for task and feature tracking:
+
+- **Database ID**: `52e21d40-3478-4b25-82e4-3a5cf9d9bce1`
+- **Database Name**: "Movie Quest - Ideas & Tasks"
+- **Notion URL**: https://notion.so/52e21d4034784b2582e43a5cf9d9bce1
+- **Access**: Via Notion MCP server (configured in global `.claude.json`)
+
+### Database Schema
+
+**Properties:**
+
+1. **Name** (Title): Task/idea description
+2. **Type** (Select):
+   - `Idea` - Initial concepts and suggestions
+   - `Feature` - Confirmed features to implement
+   - `Bug` - Issues to fix
+   - `Improvement` - Enhancements to existing functionality
+   - `Research` - Investigation tasks
+
+3. **Priority** (Select):
+   - `Urgent` (Red) - Critical, needs immediate attention
+   - `High` (Orange) - Important, high priority
+   - `Medium` (Yellow) - Standard priority
+   - `Low` (Green) - Nice to have
+
+4. **Labels** (Multi-select):
+   - `UI`, `UX`, `Backend`, `API Integration`
+   - `Performance`, `Design`, `TMDB`, `Streaming`
+
+5. **Created** (Created Time): Auto-tracked creation timestamp
+
+### Current High Priority Features
+
+These features are currently marked as High Priority:
+
+1. **Sorteer functie op rating, naam, etc** (`UI`, `UX`, `TMDB`)
+   - Enable sorting movies by rating, name, release date
+
+2. **Streaming dienst info in swipe cards en matches** (`UI`, `UX`, `API Integration`, `Streaming`)
+   - Display which streaming service offers each movie
+
+3. **Filter voor minimale film rating** (`UX`, `TMDB`, `Backend`)
+   - Allow filtering movies by minimum TMDB rating (e.g., min 8.0)
+
+4. **Filter voor jaargetal** (`UX`, `TMDB`, `Backend`)
+   - Filter movies by release year range
+
+5. **Sorteer functie voor jaargetal** (`UI`, `UX`, `TMDB`)
+   - Sort movies by release year
+
+### Workflow Guidelines
+
+**For Claude Code:**
+- Check Notion database for context and priority before implementing features
+- Update task status and add implementation notes in Notion via MCP
+- Link related tasks when dependencies exist
+- Use Labels to understand which parts of codebase are affected
+
+**Adding New Ideas:**
+- Add to Notion database with Type: "Idea"
+- Assign appropriate Labels based on affected areas
+- Priority starts at "Medium" unless urgent
+- Convert to "Feature" type once approved for implementation
+
+**From User Testing:**
+- UX insights from user testing should be added as separate tasks
+- Reference the source (e.g., "From family testing session 2025-10-26")
+- Tag with `UX` label at minimum
+
+### Notion MCP Integration
+
+Claude Code can interact with this database via the Notion MCP server:
+- Query current tasks and priorities
+- Read task details and descriptions
+- Update task status when implementing features
+- Create new tasks based on code analysis or user requests
+
+**Example queries:**
+- "What are the current high priority features in Notion?"
+- "Add a new idea to track [description]"
+- "Show me all UX-related tasks"
+- "Update task X to mark it as completed"
+
 ## Common Gotchas
 
 1. **Riverpod Code Generation**: Always run `dart run build_runner build` after adding/modifying `@riverpod` annotated code

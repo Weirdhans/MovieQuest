@@ -26,6 +26,9 @@ class TmdbService extends BaseService implements ITmdbService {
   // Cache for fetched movies to prevent duplicate API calls
   static final Map<String, Map<String, dynamic>> _moviesCache = {};
 
+  // Cache for movie streaming providers
+  static final Map<String, List<Map<String, dynamic>>> _providersCache = {};
+
   /// Seeded random number generator (mulberry32 algorithm)
   static double Function() _seededRandom(int seed) {
     return () {
@@ -145,12 +148,16 @@ class TmdbService extends BaseService implements ITmdbService {
     List<String>? excludedGenres,
     String? sessionId,
     int page = 1,
+    double? minRating,
+    int? minYear,
+    int? maxYear,
+    String sortBy = 'popularity.desc',
   }) async {
     return executeWithErrorHandling(
       () async {
-        // Check cache (v2: includes English enrichment for all non-English/Dutch films)
+        // Check cache (v3: includes filter/sort options)
         final excludedKey = excludedGenres?.join(',') ?? '';
-        final cacheKey = 'v2-${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$page';
+        final cacheKey = 'v3-${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$minRating-$minYear-$maxYear-$sortBy-$page';
         if (_moviesCache.containsKey(cacheKey)) {
           devLog('Films geladen uit cache: $cacheKey');
           return _moviesCache[cacheKey]!;
@@ -190,6 +197,24 @@ class TmdbService extends BaseService implements ITmdbService {
         if (maxCertification != 'AL') {
           params['certification_country'] = 'NL';
           params['certification.lte'] = maxCertification;
+        }
+
+        // Add minimum rating filter
+        if (minRating != null && minRating > 1.0) {
+          params['vote_average.gte'] = minRating;
+        }
+
+        // Add year range filter
+        if (minYear != null && minYear > 1888) {
+          params['primary_release_date.gte'] = '$minYear-01-01';
+        }
+        if (maxYear != null) {
+          params['primary_release_date.lte'] = '$maxYear-12-31';
+        }
+
+        // Add sort option (skip if 'random' - will use popularity then shuffle)
+        if (sortBy != 'random') {
+          params['sort_by'] = sortBy;
         }
 
         // Make API request
@@ -458,6 +483,55 @@ class TmdbService extends BaseService implements ITmdbService {
         );
       },
       'getMovieCredits',
+      metadata: {'movieId': movieId},
+    );
+  }
+
+  /// Fetch streaming providers for a movie (NL region, flatrate only)
+  @override
+  Future<Result<List<Map<String, dynamic>>>> fetchMovieProviders(int movieId) async {
+    return executeWithErrorHandling(
+      () async {
+        // Check cache
+        final cacheKey = 'providers-$movieId';
+        if (_providersCache.containsKey(cacheKey)) {
+          devLog('Providers geladen uit cache: $movieId');
+          return _providersCache[cacheKey]!;
+        }
+
+        // Fetch from TMDB API
+        final response = await _dio.get<dynamic>(
+          '/movie/$movieId/watch/providers',
+          queryParameters: {
+            'api_key': EnvConfig.tmdbApiKey,
+          },
+        );
+
+        if (response.statusCode == 200) {
+          final data = response.data as Map<String, dynamic>;
+          final results = data['results'] as Map<String, dynamic>?;
+          final nlData = results?['NL'] as Map<String, dynamic>?;
+          final flatrate = nlData?['flatrate'] as List<dynamic>?;
+
+          if (flatrate != null && flatrate.isNotEmpty) {
+            final providers = flatrate.map((p) => {
+              'provider_id': p['provider_id'],
+              'provider_name': p['provider_name'],
+              'logo_path': p['logo_path'],
+            }).toList().cast<Map<String, dynamic>>();
+
+            // Cache result
+            _providersCache[cacheKey] = providers;
+            devLogSuccess('${providers.length} providers gevonden voor film $movieId');
+            return providers;
+          }
+        }
+
+        // No providers found
+        _providersCache[cacheKey] = [];
+        return <Map<String, dynamic>>[];
+      },
+      'fetchMovieProviders',
       metadata: {'movieId': movieId},
     );
   }

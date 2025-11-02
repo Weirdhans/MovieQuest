@@ -28,6 +28,15 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
   bool _freeExpanded = false;
   bool _noPreference = false;
 
+  // Filter and sort state variables (Step 3)
+  static const int minYearEver = 1888;  // Eerste film in TMDB database
+  static int get currentYear => DateTime.now().year;  // Dynamisch huidige jaar
+
+  double _minRating = 1.0;  // Min TMDB rating (1.0-10.0)
+  int _minYear = minYearEver;  // Release year start
+  late int _maxYear = currentYear;  // Release year end (default = huidige jaar)
+  String _sortBy = 'popularity.desc';  // Sort option
+
   @override
   void dispose() {
     _hostNameController.dispose();
@@ -401,6 +410,159 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
             fontSize: 13,
             color: Colors.grey.shade400,
           ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // ===== NEW FILTER CONTROLS =====
+
+        // Minimum Rating Slider
+        Text(
+          '⭐ Minimale Rating',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Toon alleen films met minimaal deze TMDB-rating',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: Slider(
+                value: _minRating,
+                min: 1.0,
+                max: 10.0,
+                divisions: 18,  // 0.5 steps
+                label: _minRating.toStringAsFixed(1),
+                activeColor: AppTheme.primaryGold,
+                onChanged: (value) => setState(() => _minRating = value),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceDark,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                '${_minRating.toStringAsFixed(1)} ⭐',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primaryGold,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 32),
+
+        // Release Year Range Slider
+        Text(
+          '📅 Release Jaar',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Films uitgebracht tussen $minYearEver en $currentYear',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        const SizedBox(height: 12),
+        RangeSlider(
+          values: RangeValues(_minYear.toDouble(), _maxYear.toDouble()),
+          min: minYearEver.toDouble(),
+          max: currentYear.toDouble(),
+          divisions: currentYear - minYearEver,
+          labels: RangeLabels(_minYear.toString(), _maxYear.toString()),
+          activeColor: AppTheme.primaryGold,
+          onChanged: (RangeValues values) {
+            setState(() {
+              _minYear = values.start.round();
+              _maxYear = values.end.round();
+            });
+          },
+        ),
+        Text(
+          'Huidige bereik: $_minYear - $_maxYear',
+          style: const TextStyle(
+            fontSize: 14,
+            color: AppTheme.primaryGold,
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Sort Dropdown
+        Text(
+          '📊 Sorteer op',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Volgorde waarin films verschijnen (voor alle leden)',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          value: _sortBy,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppTheme.surfaceDark,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.primaryGold),
+            ),
+          ),
+          dropdownColor: AppTheme.surfaceDark,
+          style: const TextStyle(color: Colors.white),
+          items: const [
+            DropdownMenuItem(value: 'popularity.desc', child: Text('📊 Populariteit (aanbevolen)')),
+            DropdownMenuItem(value: 'vote_average.desc', child: Text('⭐ Rating (hoog → laag)')),
+            DropdownMenuItem(value: 'vote_average.asc', child: Text('⭐ Rating (laag → hoog)')),
+            DropdownMenuItem(value: 'title.asc', child: Text('🔤 Naam (A → Z)')),
+            DropdownMenuItem(value: 'title.desc', child: Text('🔤 Naam (Z → A)')),
+            DropdownMenuItem(value: 'primary_release_date.desc', child: Text('📅 Jaar (nieuw → oud)')),
+            DropdownMenuItem(value: 'primary_release_date.asc', child: Text('📅 Jaar (oud → nieuw)')),
+            DropdownMenuItem(value: 'random', child: Text('🎲 Willekeurig')),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _sortBy = value);
+            }
+          },
         ),
 
         const SizedBox(height: 24),
@@ -937,6 +1099,10 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
         requiredVotes: requiredVotes,
         genreMatchMode: genreMatchMode,
         excludedGenres: excludedGenres.isNotEmpty ? excludedGenres : null,
+        minRating: _minRating,
+        minYear: _minYear,
+        maxYear: _maxYear,
+        sortBy: _sortBy,
       );
 
       await result.when(

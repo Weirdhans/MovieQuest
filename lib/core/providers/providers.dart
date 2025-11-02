@@ -217,3 +217,22 @@ final hostNameProvider = StateProvider<String>((ref) => '');
 
 /// Genre Match Mode Provider (OR vs AND logic for genres)
 final genreMatchModeProvider = StateProvider<String>((ref) => 'all');
+
+// ============================================
+// MOVIE PROVIDERS (for streaming service badges)
+// ============================================
+
+/// Movie Streaming Providers Provider (FutureProvider)
+/// Fetches streaming providers for a specific movie (lazy loaded per-card)
+final movieProvidersProvider = FutureProvider.family<List<Map<String, dynamic>>, int>((ref, movieId) async {
+  final tmdbService = ref.watch(tmdbServiceProvider);
+  final result = await tmdbService.fetchMovieProviders(movieId);
+
+  return result.when(
+    success: (providers) => providers,
+    error: (error) {
+      devLogError('Failed to fetch providers for movie $movieId', error);
+      return <Map<String, dynamic>>[];
+    },
+  );
+});

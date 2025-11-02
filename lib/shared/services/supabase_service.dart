@@ -76,6 +76,10 @@ class SupabaseService extends BaseService implements ISupabaseService {
     required int requiredVotes,
     String genreMatchMode = 'any',
     List<String>? excludedGenres,
+    double? minRating,
+    int? minYear,
+    int? maxYear,
+    String? sortBy,
   }) async {
     return executeWithErrorHandling(
       () async {
@@ -93,6 +97,20 @@ class SupabaseService extends BaseService implements ISupabaseService {
         // Add excluded_genres if provided
         if (excludedGenres != null && excludedGenres.isNotEmpty) {
           sessionData['excluded_genres'] = excludedGenres;
+        }
+
+        // Add filter/sort options if provided
+        if (minRating != null) {
+          sessionData['min_rating'] = minRating;
+        }
+        if (minYear != null) {
+          sessionData['min_year'] = minYear;
+        }
+        if (maxYear != null) {
+          sessionData['max_year'] = maxYear;
+        }
+        if (sortBy != null) {
+          sessionData['sort_by'] = sortBy;
         }
 
         final response = await client.from('sessions').insert(sessionData).select().single();

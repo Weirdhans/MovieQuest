@@ -10,6 +10,10 @@ abstract class ITmdbService {
     List<String>? excludedGenres,
     String? sessionId,
     int page = 1,
+    double? minRating,
+    int? minYear,
+    int? maxYear,
+    String sortBy = 'popularity.desc',
   });
 
   String getPosterUrl(String? posterPath, {String size = 'w500'});
@@ -30,4 +34,5 @@ abstract class ITmdbService {
   Future<Result<Map<String, dynamic>>> getMovieDetails(int movieId);
   Future<Result<List<dynamic>>> searchMovies(String query);
   Future<Result<Map<String, dynamic>>> getMovieCredits(int movieId);
+  Future<Result<List<Map<String, dynamic>>>> fetchMovieProviders(int movieId);
 }

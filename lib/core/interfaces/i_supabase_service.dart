@@ -13,6 +13,10 @@ abstract class ISupabaseService {
     required int requiredVotes,
     String genreMatchMode = 'any',
     List<String>? excludedGenres,
+    double? minRating,
+    int? minYear,
+    int? maxYear,
+    String? sortBy,
   });
   Future<Result<Map<String, dynamic>>> getSession(String sessionId);
   Future<Result<Map<String, dynamic>>> getSessionPreview(String sessionId);
