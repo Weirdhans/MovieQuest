@@ -1,0 +1,237 @@
+---
+title: "Launch Day Chaos - 11 Bugs in Production"
+date: "2025-10-25"
+project: "MovieQuest"
+tags: ["bugfix", "devops"]
+summary: "We launched MovieQuest in the evening. By midnight, we'd fixed 11 critical bugs. Here's what broke and how we fixed it."
+author: "Hans"
+published: true
+coverImage: "/blog/moviequest-bugfix-production.png"
+---
+
+## The Calm Before The Storm
+
+[Earlier today](/blog/moviequest-the-birth-of-an-idea), we launched MovieQuest - a Tinder-style app for choosing movies with friends. The deployment went smooth. Vercel was happy. The app loaded beautifully on desktop.
+
+We felt like heroes.
+
+Then we actually tested it on our phones.
+
+## "This Will Be Easy" - Famous Last Words
+
+**Two hours after launch**, we pushed some nice UI improvements - streaming provider accordions, better genre logic, host name display. Polish. We were feeling confident.
+
+Then we asked a friend to try the app.
+
+*"The swipe doesn't work."*
+
+Oh no.
+
+## The Bug Fixing Marathon Begins
+
+What followed was **16 commits in under 2 hours**. Grab your popcorn. 🍿
+
+### Hour 1: "How Many Bugs Can One App Have?"
+
+**30 minutes in:** "Fix 7 critical bugs found in production testing"
+
+We didn't find one bug. We found SEVEN. Simultaneously.
+
+**Bug #1: The Identity Crisis**
+- Host's name showed as "Host" instead of their actual name
+- Turns out we hardcoded it. Oops.
+
+**Bug #2: The Hotel California Logo**
+- You could enter the app, but you could never leave
+- Logo wasn't clickable. No way to go back to homepage.
+- Fixed: wrapped it in an `<a>` tag (should've been obvious)
+
+**Bug #3: The Silent Trailers**
+- Clicked "Watch Trailer" → nothing happened
+- The function literally didn't exist yet
+- We forgot to implement it. Classic.
+
+**Bug #4: The Unreachable Buttons**
+- Mobile poster so tall, you couldn't reach the swipe buttons
+- Users scrolling desperately trying to find the buttons
+- Solution: `max-height: 70vh` - why didn't we do this from the start?
+
+**Bug #5: The Predictable "Random"**
+- Random shuffle... that was identical for everyone
+- Defeated the whole purpose
+- Implemented proper seeded RNG with Fisher-Yates shuffle
+- Now everyone sees the *same* random order (which is what we wanted)
+
+**Bug #6: The Android Swipe-pocalypse**
+- Android users: "Nothing happens when I swipe"
+- iOS users: "Works fine for me"
+- Welcome to mobile web development! 🙃
+- Fixed with `touch-action: none` and Hammer.js timeout tweaks
+
+**Bug #7: The Amnesia Bug**
+- Refresh the page → back to movie #1
+- Lost your progress completely
+- Added localStorage position saving
+- Your welcome message: saved positions
+
+Seven bugs in one commit. We thought we were done.
+
+*Narrator: They were not done.*
+
+### Hour 1.5: The Alpine.js Debugging Spiral
+
+**40 minutes later:** "Fix 4 critical issues from production testing"
+
+Found four MORE bugs:
+- Filters not applying
+- Match threshold broken
+- Vote counts wrong
+- Member widget frozen
+
+**Another 20 minutes:** "Fix critical bugs: swipe position, swipe gestures, and trailer discovery"
+
+The swipe gestures STILL didn't work. We thought we fixed it.
+
+*We did not fix it.*
+
+**10 minutes later:** "Fix UX issues: swipe threshold, mobile layout, and host name"
+
+Mobile layout still wonky. Swipe too sensitive. Could we get ANYTHING right?
+
+**6 minutes later:** "Add debug logging for swipe gesture issues"
+
+At this point: full panic mode. `console.log()` EVERYWHERE.
+
+**2 minutes later:** "Fix swipe gestures - use `window.Alpine` instead of `Alpine`"
+
+💡 EUREKA! Alpine.js scope issue!
+
+**3 minutes later:** "Fix swipe gestures - access Alpine component via DOM instead of store"
+
+💔 Nope. Still broken. Different approach.
+
+**1 minute later:** "Fix keyboard shortcuts to also use DOM-based Alpine access"
+
+Oh great, now keyboard shortcuts are broken because of our "fix."
+
+At this point we're just breaking new things faster than we fix old things.
+
+### Hour 2: The Mobile Layout Saga
+
+We thought we were done. Then we looked at the app on mobile again.
+
+**8 minutes later:** "Fix pagination bug and mobile layout for genre tags"
+
+Genre tags wrapping like a Christmas present. Pagination completely broken.
+
+**20 minutes later:** "Implement state snapshot for instant swipe position restoration"
+
+Position saving worked but was slooooow. Nobody likes slow apps.
+
+**16 minutes later:** "Test: Change poster to object-contain with gradient background"
+
+Posters cropping people's faces off. Tried a gradient background. Looked cool!
+
+**4 minutes later:** "Optimize spacing and increase poster size for better visibility"
+
+Text cramped. More spacing. Bigger poster.
+
+**6 minutes later:** "Fix mobile poster height to show movie info"
+
+Wait, now poster is too big AGAIN. How is this still a problem?
+
+**1 minute later:** "Increase text sizes on mobile for better readability"
+
+While we're here, text too small. Make it bigger.
+
+**4 minutes later:** "Drastically reduce mobile poster size and increase info visibility"
+
+🔥 FINAL SOLUTION: Small poster. Big info section. Done.
+
+## What We Learned (The Hard Way)
+
+### 1. Chrome DevTools Mobile Emulation Is A Liar
+
+The app looked PERFECT on desktop. On actual phones?
+
+```
+Expectation: ✨ Beautiful responsive design
+Reality: 💀 Buttons off-screen, nothing works
+```
+
+**Lesson:** Always test on real devices. Your iPhone. Your friend's Android. That old tablet in the drawer.
+
+### 2. Touch Gestures Are The Final Boss of Web Development
+
+We tried 5 different approaches:
+- ❌ Default touch events
+- ❌ Touch-action: manipulation
+- ❌ Touch-action: pan-y
+- ❌ Hammer.js default config
+- ✅ Touch-action: none + Hammer.js timeout 2000ms
+
+Mobile web gestures will humble you.
+
+### 3. Alpine.js Documentation: "Am I A Joke To You?"
+
+Trying to access Alpine components:
+- `Alpine.store()` - sometimes works
+- `window.Alpine` - works... differently
+- DOM-based access - finally works
+
+The docs don't explain this. You just have to suffer.
+
+### 4. Users Are Chaos Agents
+
+We tested ourselves. Worked great.
+
+Two real users found:
+- 7 bugs in 10 minutes
+- 4 more in the next 20 minutes
+- Edge cases we never imagined
+
+Users will break your app in ways you didn't know were possible.
+
+### 5. Ship Fast, Fix Faster
+
+16 commits in 2 hours = controlled chaos.
+
+But every fix went live within minutes. Users saw improvements in real-time.
+
+Better than "we'll fix it in next week's release."
+
+## The Silver Linings
+
+Despite the carnage, our stack held strong:
+
+✅ **Vercel** - Deployed 16 times in 2 hours, zero downtime
+✅ **Supabase** - Real-time features never hiccupped
+✅ **TMDB API** - Fast, reliable, no issues
+✅ **Alpine.js** - Once we understood it, actually great
+✅ **Tailwind** - Rapid iteration saved us
+
+The bugs were 100% our fault, not the tools.
+
+## Midnight: Finally Stable
+
+At midnight, we deployed the final fix.
+
+MovieQuest was stable. Swipes worked on iOS and Android. Trailers played. Mobile layout looked decent.
+
+**Final Stats:**
+- ✅ 16 commits in ~2 hours
+- ✅ 11 major bugs fixed
+- ✅ 7 minor UX improvements
+- ❌ 0 hours of sleep
+
+Tomorrow: a complete responsive design overhaul (yes, more layout fixes).
+
+For tonight: we ship.
+
+---
+
+**MovieQuest** - Now with 11 fewer bugs.
+
+Try it at [movie-quests.vercel.app](http://movie-quests.vercel.app/)
+
+*(We promise it works now)*
