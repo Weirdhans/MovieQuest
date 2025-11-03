@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,7 +77,6 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
         appBar: AppBar(
           title: const Text('Nieuwe Sessie'),
           centerTitle: true,
-          automaticallyImplyLeading: !kIsWeb,
         ),
       body: ResponsiveWrapper(
         maxWidth: ResponsiveConstants.formScreenMaxWidth,
