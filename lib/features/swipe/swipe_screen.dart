@@ -720,7 +720,40 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       });
     });
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        // Show confirmation dialog before leaving session
+        final shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Sessie Verlaten?'),
+            content: const Text('Weet je zeker dat je de sessie wilt verlaten? Je voortgang blijft bewaard.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Annuleren'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                child: const Text('Verlaten'),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldPop == true && context.mounted) {
+          // Clear session state and navigate to home
+          ref.read(currentSessionIdProvider.notifier).state = null;
+          Navigator.of(context).pushReplacementNamed('/');
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Column(
           mainAxisSize: MainAxisSize.min,
@@ -929,6 +962,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
           ),
           ],
         ),
+      ),
       ),
     );
   }

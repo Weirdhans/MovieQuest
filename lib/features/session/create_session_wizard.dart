@@ -58,11 +58,23 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
   Widget build(BuildContext context) {
     final isLoading = ref.watch(isLoadingProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nieuwe Sessie'),
-        centerTitle: true,
-      ),
+    return PopScope(
+      canPop: _currentStep == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        // If not on first step, go back to previous step
+        if (_currentStep > 0) {
+          setState(() {
+            _currentStep--;
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Nieuwe Sessie'),
+          centerTitle: true,
+        ),
       body: ResponsiveWrapper(
         maxWidth: ResponsiveConstants.formScreenMaxWidth,
         child: Column(
@@ -81,6 +93,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
             _buildNavigationButtons(),
           ],
         ),
+      ),
       ),
     );
   }

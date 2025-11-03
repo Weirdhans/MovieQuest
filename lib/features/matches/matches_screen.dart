@@ -45,10 +45,23 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Matches'),
-        centerTitle: true,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        // Navigate back to SwipeScreen explicitly
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        } else {
+          // Fallback: use named route if stack is empty
+          Navigator.pushReplacementNamed(context, '/swipe');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Matches'),
+          centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(90),
           child: Column(
@@ -89,6 +102,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> with SingleTicker
             ],
           ),
         ),
+      ),
       ),
     );
   }
