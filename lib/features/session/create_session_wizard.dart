@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/constants/responsive_constants.dart';
 import '../../core/providers/providers.dart';
 import '../../core/utils/dev_log.dart';
+import '../../core/utils/browser_history.dart';
 import '../../shared/widgets/responsive_wrapper.dart';
 
 /// Multi-Step Wizard for Creating a Session
@@ -38,8 +40,39 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
   String _sortBy = 'popularity.desc';  // Sort option
 
   @override
+  void initState() {
+    super.initState();
+
+    // Initialize browser history management for web platform
+    if (kIsWeb) {
+      BrowserHistoryManager.instance.initialize(() {
+        // Handle browser back button: go to previous step or exit wizard
+        if (mounted) {
+          if (_currentStep > 0) {
+            setState(() {
+              _currentStep--;
+            });
+          } else {
+            // On first step, let PopScope handle navigation to home
+            Navigator.of(context).pop();
+          }
+        }
+      });
+
+      // Set initial state
+      BrowserHistoryManager.instance.replaceState('step_$_currentStep');
+    }
+  }
+
+  @override
   void dispose() {
     _hostNameController.dispose();
+
+    // Clean up browser history listener on web platform
+    if (kIsWeb) {
+      BrowserHistoryManager.instance.dispose();
+    }
+
     super.dispose();
   }
 
@@ -629,7 +662,12 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
                         : selectedProviders
                             .map((id) => StreamingProviders.getNameById(id))
                             .join(', '),
-                onEdit: () => setState(() => _currentStep = 0),
+                onEdit: () {
+                  setState(() => _currentStep = 0);
+                  if (kIsWeb) {
+                    BrowserHistoryManager.instance.replaceState('step_0');
+                  }
+                },
               ),
 
               const Divider(height: 32, color: Colors.grey),
@@ -641,7 +679,12 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
                 value: selectedGenres.isEmpty
                     ? 'Geen geselecteerd'
                     : selectedGenres.map((id) => Genres.getNameById(id)).join(', '),
-                onEdit: () => setState(() => _currentStep = 1),
+                onEdit: () {
+                  setState(() => _currentStep = 1);
+                  if (kIsWeb) {
+                    BrowserHistoryManager.instance.replaceState('step_1');
+                  }
+                },
               ),
 
               const Divider(height: 32, color: Colors.grey),
@@ -651,7 +694,12 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
                 icon: '⚙️',
                 title: 'Instellingen',
                 value: 'Max ${Certifications.list.firstWhere((c) => c.value == selectedCertification).label} • $requiredVotes ${requiredVotes == 1 ? 'like' : 'likes'} vereist',
-                onEdit: () => setState(() => _currentStep = 2),
+                onEdit: () {
+                  setState(() => _currentStep = 2);
+                  if (kIsWeb) {
+                    BrowserHistoryManager.instance.replaceState('step_2');
+                  }
+                },
               ),
             ],
           ),
@@ -1022,7 +1070,14 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
           if (_currentStep > 0)
             Expanded(
               child: OutlinedButton(
-                onPressed: () => setState(() => _currentStep--),
+                onPressed: () {
+                  setState(() => _currentStep--);
+
+                  // Update browser history state on web
+                  if (kIsWeb) {
+                    BrowserHistoryManager.instance.replaceState('step_$_currentStep');
+                  }
+                },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: BorderSide(color: AppTheme.primaryGold.withValues(alpha: 0.5)),
@@ -1081,6 +1136,11 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
     if (_currentStep < totalSteps - 1) {
       // Go to next step
       setState(() => _currentStep++);
+
+      // Update browser history state on web
+      if (kIsWeb) {
+        BrowserHistoryManager.instance.replaceState('step_$_currentStep');
+      }
     } else {
       // Create session (final step)
       _createSession();
