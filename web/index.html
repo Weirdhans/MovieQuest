@@ -54,6 +54,30 @@
         }
       });
     });
+
+    // Prevent browser back/forward swipe gestures on edge of screen
+    // This prevents accidental navigation when swiping near screen edges
+    (function() {
+      let startX = 0;
+      const edgeThreshold = 50; // pixels from edge to block swipe
+
+      // Use passive: false to allow preventDefault()
+      document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].pageX;
+
+        // If touch starts near left or right edge, prevent navigation
+        if (startX < edgeThreshold || startX > window.innerWidth - edgeThreshold) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchmove', function(e) {
+        // If swipe started near edge, block the move event
+        if (startX < edgeThreshold || startX > window.innerWidth - edgeThreshold) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    })();
   </script>
 </head>
 <body>
