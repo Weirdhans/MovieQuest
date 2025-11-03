@@ -1,0 +1,79 @@
+---
+title: "Phoenix Rising: New Branding & Smart Exclusions"
+date: "2025-10-29"
+summary: "MovieQuest gets its iconic phoenix filmreel logo, three-state genre filtering, and goes live on the web with Vercel deployment."
+author: "Hans"
+tags: ["feature", "design", "deployment"]
+project: "MovieQuest"
+coverImage: "/blog/moviequest-branding-phoenix.png"
+---
+
+Day two of Flutter development brought something special: MovieQuest found its visual identity.
+
+## The Phoenix Rises
+
+A good logo tells your story instantly. The old phoenix was nice, but it didn't scream "movies". We needed something better.
+
+Enter the **phoenix filmreel logo**.
+
+The phoenix now clutches a filmstrip in its talons, the turquoise reels glowing against orange and blue feathers. It's unmistakably MovieQuest - rebirth meets cinema. The logo works everywhere:
+
+- **App icons** across Android, iOS, and web (40+ sizes generated automatically)
+- **Home screen** with dual gold/turquoise glow effect
+- **Favicons** that actually look good in browser tabs
+- **PWA icons** with proper safe zones for maskable designs
+
+We added two new accent colors to the theme:
+- `accentTurquoise` (#4FD1C5) from the filmreel
+- `accentGreen` (#68D391) from the phoenix's wing accents
+
+The branding now feels cohesive. Professional. Ready for launch.
+
+## Not That Genre
+
+Here's a problem: you want action movies, but NOT superhero films. Or horror, but NOT gore. The old system? All or nothing.
+
+**New system: three-state genre filtering**.
+
+Tap a genre chip once: **yellow with checkmark** - include this genre
+Tap it again: **red with strikethrough** - exclude this genre
+Tap a third time: **gray** - don't care either way
+
+Each state has haptic feedback and a subtle scale animation. It feels tactile, responsive, satisfying.
+
+Behind the scenes:
+- Included genres use TMDB's `with_genres` parameter
+- Excluded genres use `without_genres` (completely filters them out)
+- The ALLE/ÉÉN toggle only affects included genres
+- Excluded genres are ALWAYS filtered regardless of match mode
+
+So if you exclude Horror but include Action + Comedy with "ÉÉN" mode, you'll get action movies OR comedies, but never horror. The math works exactly how you'd expect.
+
+And it's backward compatible - the database stores `excluded_genres` as an optional field, so old sessions still work fine.
+
+## Going Live
+
+While we were at it, we deployed MovieQuest to **Vercel** for web access.
+
+Same Flutter codebase. Same Supabase backend. Now accessible from desktop browsers.
+
+The build pipeline:
+1. Generate web-specific environment config from Vercel env vars
+2. Build Flutter web with release optimizations
+3. Deploy to `movie-quests.vercel.app`
+4. Auto-deploy on every push to main branch
+
+We hit some snags (256-character command limits, asset requirements, font warnings), but eventually got it running smooth. The web version is now live and tracking analytics.
+
+## Three Wins
+
+In one day we:
+1. **Established visual identity** with a logo that actually represents what we do
+2. **Doubled filtering power** with genre exclusions (not just inclusions)
+3. **Went multi-platform** with web deployment alongside mobile
+
+The phoenix is rising. And it's holding a filmstrip.
+
+---
+
+_This is part of the MovieQuest development series. Previous: [Flutter Day One: Three Game-Changers](/posts/flutter-day-one-three-game-changers)_

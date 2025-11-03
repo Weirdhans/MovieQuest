@@ -1,0 +1,113 @@
+---
+title: "Power Features: Filtering & Sorting Mastery"
+date: "2025-11-02"
+summary: "Advanced filtering with minimum ratings and year ranges, 8 sort options including seeded random shuffle, and streaming provider badges on every card."
+author: "Hans"
+tags: ["feature", "filtering", "sorting"]
+project: "MovieQuest"
+coverImage: "/blog/moviequest-power-features.png"
+---
+
+After a day of rest, we came back with the big guns.
+
+## Not All Movies Are Created Equal
+
+You like action movies. Great. But do you really want to see every B-grade direct-to-streaming action flick with a 3.2 rating?
+
+Probably not.
+
+**Enter: Minimum Rating Filter**
+
+Slider from 1.0 to 10.0 (in 0.5 increments). Set it to 7.0? You'll only see movies with TMDB ratings of 7.0 or higher. Simple. Effective. No more wading through garbage.
+
+But wait, there's more.
+
+## Time Travel (Sort Of)
+
+Maybe you're in a retro mood. Classic 80s action. Or perhaps you only want recent releases from the last two years.
+
+**Enter: Release Year Range Filter**
+
+Dual slider spanning 1888 (the first film in TMDB's database) to the current year. Want movies from 1985-1995? Slide. Want only 2020+? Slide.
+
+Combined with the rating filter? Now we're talking surgical precision:
+- "Give me sci-fi from 1977-1983 with rating 7.5+"
+- "Show me horror from 2018-2025 rated 6.0+"
+- "Any comedy from the 90s with rating 8.0+"
+
+The possibilities are endless.
+
+## Sort It Out
+
+Finding movies is one thing. Finding them in the *right order* is another.
+
+**8 sort options:**
+1. **Populariteit (hoog-laag)** - Most popular first (default)
+2. **Populariteit (laag-hoog)** - Hidden gems
+3. **Rating (hoog-laag)** - Best rated first
+4. **Rating (laag-hoog)** - Guilty pleasures
+5. **Verschijningsdatum (nieuw-oud)** - Latest releases
+6. **Verschijningsdatum (oud-nieuw)** - Classics first
+7. **Titel (A-Z)** - Alphabetical
+8. **Titel (Z-A)** - Reverse alphabetical
+9. **🎲 Willekeurig** - Random (but smart)
+
+That last one deserves explanation.
+
+### Seeded Shuffle Magic
+
+When you select "🎲 Willekeurig", the app doesn't just randomly shuffle movies. If it did, every member in the session would see a different order. Chaos.
+
+Instead, it uses **deterministic shuffling with the session ID as seed**.
+
+Same session = same shuffle = everyone sees the same movies in the same order.
+
+The technical term is "mulberry32 PRNG with Fisher-Yates shuffle". The practical result? Random, but synchronized.
+
+## Where to Watch (Without Clicking)
+
+You swipe through movies. You find one you like. Question: "Where can I watch this?"
+
+Previously: No idea. You'd have to check TMDB, Google it, or just hope for the best.
+
+**Now: Streaming provider badges**
+
+Every movie card shows circular logos of where it's available in the Netherlands:
+- Netflix
+- Disney+
+- Amazon Prime Video
+- Apple TV
+- SkyShowtime
+- Videoland
+- And 8 more
+
+The badges are **lazy loaded** (fetched per-card as needed, not for the entire list) and **cached** (no duplicate API calls). Efficient. Fast. Informative.
+
+Match screen shows the same provider badges. No surprises when you finally agree on a movie - you already know where to watch it.
+
+## Backward Compatible
+
+Here's the best part: all these features are **optional**.
+
+Old sessions still work. The new database fields (`minRating`, `minYear`, `maxYear`, `sortBy`) are nullable. If they don't exist, the app uses default behavior.
+
+No migrations needed. No breaking changes. Existing sessions keep running.
+
+But new sessions? Welcome to the big leagues.
+
+## Five for the Price of One
+
+In one commit, we shipped:
+1. Minimum rating filter (1.0-10.0)
+2. Release year range filter (1888 - current year)
+3. Sort options (8 choices + seeded random)
+4. Streaming provider badges (lazy loaded + cached)
+5. Session-level configuration (all members see the same filtered/sorted results)
+
+This is what power users dream of. Granular control. Precise filtering. No compromises.
+
+MovieQuest just leveled up.
+
+---
+
+_This is part of the MovieQuest development series. Previous: [Polish: The UX Details That Matter](/posts/polish-ux-details-that-matter)_

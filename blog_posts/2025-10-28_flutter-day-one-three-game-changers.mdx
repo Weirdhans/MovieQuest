@@ -1,0 +1,80 @@
+---
+title: "Flutter Day One: Three Game-Changers"
+date: "2025-10-28"
+summary: "The first full day of Flutter development brought member tracking with fun auto-generated names, a beautiful multi-step wizard, and instant QR code sharing."
+author: "Hans"
+tags: ["feature", "ux"]
+project: "MovieQuest"
+coverImage: "/blog/moviequest-flutter-day1.png"
+---
+
+After [deciding to go mobile with Flutter](/posts/why-flutter-going-mobile), it was time to build. And what a first day it turned out to be.
+
+## The Name Problem
+
+Here's a scenario: you create a MovieQuest session, your friends join... and everyone shows up as "User #1234". Not exactly the social vibe we're going for.
+
+**The solution?** Auto-generated movie-themed names.
+
+Now when someone joins without entering a name, they become "Popcorn Piraat", "Cinema Meester", or "Blockbuster Ninja". There are 225 possible combinations (15 prefixes × 15 suffixes), and the best part? The same person always gets the same name. Your friend who's always "Reel Koning"? That's their MovieQuest identity now.
+
+But we didn't stop at names. The entire members view got a complete makeover:
+
+- **Medal rankings** with 🥇🥈🥉 emojis for the top 3 swipers
+- **Progress bars** showing who's actually doing the work
+- **Real-time updates** - see members join and swipe live
+- **Beautiful gradient cards** (because why not?)
+
+The crown badge (👑) marks the session host, and you can see both total swipes and how many were likes. Suddenly, finding movies together feels like a friendly competition.
+
+## The Wizard Transformation
+
+The original session creation was... functional. A single long form with dropdowns, checkboxes, sliders. It worked, but it wasn't exactly delightful.
+
+Enter the **4-step wizard**:
+
+**Step 1: Where do you want to watch?** (🎬)
+Pick from 14 streaming services across three categories: subscription, pay-per-view, and free. Or just tap "Geen voorkeur" and see everything.
+
+**Step 2: What do you want to watch?** (🎭)
+Choose from 18 genres. Want action AND comedy? Or maybe JUST horror? The matching mode is your call.
+
+**Step 3: Fine-tune your search** (⚙️)
+Set age ratings and minimum required likes. Both optional - only use them if you want to.
+
+**Step 4: Launch!** (🚀)
+Review everything, add your name, hit that gradient button, and you're live.
+
+Each step fits on screen without scrolling. Progress bar at the top. Validation that actually makes sense. And if you change your mind on Step 4? Edit buttons jump you right back to fix it.
+
+Oh, and we updated the streaming provider list too. Added SkyShowtime, Viaplay, Canal+, NLZIET, NPO Start, Apple TV, and Google Play Movies. Fixed some outdated IDs. Removed HBO Max (RIP). We're now at **14 streaming services** total.
+
+## Scan and Play
+
+You've created your session. Now how do your friends join?
+
+Previously: copy the link, send it in WhatsApp, hope they paste it correctly.
+
+Now: **QR code**.
+
+Right there on the "Session Created" screen. Big, gold-bordered, impossible to miss. Your friend pulls out their phone, scans it, boom - they're in.
+
+And if you're already swiping? Hit the share button in the top-right. Same QR code appears. No interruption to your movie hunt.
+
+## The Technical Stuff (for the Curious)
+
+Behind the scenes, this was a beast:
+
+- **Real-time member tracking** using Supabase subscriptions
+- **Deterministic name generation** (hashCode magic ensures consistency)
+- **Multi-step form state management** with validation per step
+- **QR code rendering** with custom styling
+- **Enhanced database RPC** for like counts and host detection
+
+Three major features in one day. Not bad for a Flutter newbie.
+
+Tomorrow? We keep building.
+
+---
+
+_This is part of the MovieQuest development series. Previous posts: [The Birth of an Idea](/posts/moviequest-the-birth-of-an-idea), [Launch Day Chaos](/posts/launch-day-chaos-11-bugs-in-production), [The Great Layout Overhaul](/posts/the-great-layout-overhaul), [Why Flutter?](/posts/why-flutter-going-mobile)_

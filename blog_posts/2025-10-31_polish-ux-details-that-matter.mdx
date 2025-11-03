@@ -1,0 +1,101 @@
+---
+title: "Polish: The UX Details That Matter"
+date: "2025-10-31"
+summary: "Clean URLs, session previews, smart title handling, and colorful avatars - the finishing touches that make MovieQuest feel professional."
+author: "Hans"
+tags: ["feature", "ux", "polish"]
+project: "MovieQuest"
+coverImage: "/blog/moviequest-polish-ux.png"
+---
+
+Sometimes the best features are the ones users don't consciously notice. They just make everything feel... right.
+
+## Shareable URLs That Don't Suck
+
+Original join URLs looked like this:
+```
+https://movie-quests.vercel.app/#/?join=abc-123-xyz
+```
+
+Not exactly elegant. Hard to read. Impossible to remember. And that `#/?` combo? Yikes.
+
+**New URLs:**
+```
+https://movie-quests.vercel.app/join/abc-123-xyz
+```
+
+Clean. Shareable. Professional. And they work everywhere - localhost, Vercel previews, production, future custom domains. The URL generation system automatically detects the environment and builds the right link.
+
+Plus, the old URLs still work. We redirect `/?join=SESSION_ID` to the new format, so nobody's QR codes break.
+
+## Preview Before You Leap
+
+Imagine clicking a join link and getting instantly dumped into a movie session. No context. No warning. Just... movies.
+
+Not great UX.
+
+**Now when you open a join link:**
+1. You see the **Session Preview Screen**
+2. Host's name displayed prominently
+3. Current member count
+4. All active filters (streaming services, genres, age ratings)
+5. Optional: add your own name
+6. One-click join button
+
+It answers the question: "What am I about to join?" before you commit.
+
+The preview fetches session data plus host information in a single database call. Efficient. Fast. Informative.
+
+## When Movie Titles Go Japanese
+
+Here's a problem: TMDB has movies in every language. Some titles are in Japanese, Chinese, Arabic, Korean...
+
+For Dutch/English users, seeing "劇場版「鬼滅の刃」" instead of "Demon Slayer: Mugen Train" is not ideal.
+
+**Solution: Smart title fallback**
+
+The app now detects when a title contains non-Latin characters (CJK, Arabic, Cyrillic, Thai, etc.) and automatically falls back to the original English title if available.
+
+Examples:
+- `劇場版「鬼滅の刃」` → Shows "Demon Slayer: Mugen Train"
+- `Squid Game` → Shows "Squid Game" (already readable)
+- `オッペンハイマー` → Shows "Oppenheimer"
+
+Zero manual configuration. No extra API calls. Just automatic detection using Unicode character ranges.
+
+The full movie library stays intact (anime and K-dramas don't get removed), but titles are always readable for Western audiences.
+
+## Colorful Identities
+
+Partial matches show which members have already voted. Originally? Just text names.
+
+Boring. Forgettable. Wasted opportunity.
+
+**Now: Colorful avatar circles with initials**
+
+Each member gets:
+- A **2-letter initial** (Hans Weebers → HW, Hans → HA)
+- A **deterministic color** from a 10-color palette (same name = same color always)
+- A **circular avatar** (20px) that's instantly recognizable
+
+When 4+ members vote, we show the first 3 avatars plus "+2" overflow indicator.
+
+Result? Partial match cards have personality. You can spot your friends at a glance. The UI feels alive.
+
+## The Devil in the Details
+
+These features aren't flashy. No one's going to screenshot the URL structure and post it on Instagram.
+
+But they matter:
+- **Clean URLs** make sharing effortless
+- **Session previews** reduce confusion
+- **Smart titles** keep everything readable
+- **Colorful avatars** add personality
+
+This is what separates a prototype from a product. The little polish. The attention to detail. The care.
+
+MovieQuest is starting to feel real.
+
+---
+
+_This is part of the MovieQuest development series. Previous: [Phoenix Rising: Branding & Exclusions](/posts/phoenix-rising-branding-and-exclusions)_
