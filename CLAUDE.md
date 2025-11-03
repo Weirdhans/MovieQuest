@@ -339,6 +339,64 @@ The app supports deep linking for joining sessions via shareable URLs and QR cod
 
 See [main.dart](lib/main.dart) `onGenerateRoute` for complete routing logic.
 
+### Android Back Button & Gesture Handling
+
+The app implements proper back button and edge swipe gesture handling using Flutter's `PopScope` widget (Flutter 3.12+). This prevents accidental exits and provides intuitive navigation that matches user expectations from other professional apps.
+
+**Implementation Pattern:**
+
+All navigation screens use `PopScope` to intercept back button presses and edge swipe gestures:
+
+```dart
+return PopScope(
+  canPop: false,  // or conditional based on state
+  onPopInvokedWithResult: (didPop, result) {
+    // Custom handling logic
+  },
+  child: Scaffold(...),
+);
+```
+
+**Screen-Specific Behavior:**
+
+1. **SwipeScreen** ([swipe_screen.dart:723](lib/features/swipe/swipe_screen.dart#L723)):
+   - Shows confirmation dialog before leaving active session
+   - Dialog text: "Sessie Verlaten? Weet je zeker dat je de sessie wilt verlaten? Je voortgang blijft bewaard."
+   - Options: "Annuleren" (cancel) / "Verlaten" (leave)
+   - On confirm: Clears `currentSessionIdProvider` and navigates to home
+   - Prevents accidental session exits during movie swiping
+
+2. **MatchesScreen** ([matches_screen.dart:48](lib/features/matches/matches_screen.dart#L48)):
+   - Navigates back to SwipeScreen instead of closing app
+   - Uses `Navigator.canPop()` check with fallback to `pushReplacementNamed('/swipe')`
+   - Ensures reliable navigation regardless of navigation stack state
+
+3. **CreateSessionWizard** ([create_session_wizard.dart:61](lib/features/session/create_session_wizard.dart#L61)):
+   - Step-based navigation: back button goes to previous wizard step
+   - Conditional `canPop: _currentStep == 0`
+   - When `_currentStep > 0`: Decrements step counter and stays in wizard
+   - When `_currentStep == 0`: Allows normal back navigation to home
+   - Matches behavior of multi-step forms in professional apps (Google account setup, e-commerce checkouts)
+
+**Why PopScope Instead of WillPopScope:**
+
+- `WillPopScope` was deprecated in Flutter 3.12
+- `PopScope` is the modern, official API with better predictive back gesture support
+- `onPopInvokedWithResult` provides more control and context than `onWillPop`
+- Industry standard pattern used in production Flutter apps
+
+**Testing:**
+
+Tested on Android 16 (API 36) with:
+- Hardware back button presses
+- Edge swipe gestures (swipe from left edge)
+- All scenarios working correctly across all three screens
+
+**Related Code:**
+- [swipe_screen.dart](lib/features/swipe/swipe_screen.dart) - Session exit confirmation
+- [matches_screen.dart](lib/features/matches/matches_screen.dart) - Back to swipe navigation
+- [create_session_wizard.dart](lib/features/session/create_session_wizard.dart) - Wizard step navigation
+
 ## Testing
 
 ### Running Tests
