@@ -30,12 +30,20 @@ class SessionCreatedScreen extends ConsumerWidget {
     // Build the session URL using dynamic URL detection
     final sessionUrl = UrlUtils.getJoinUrl(sessionId);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sessie Aangemaakt'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        // Navigate back to home - session remains active
+        Navigator.of(context).pushReplacementNamed('/');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Sessie Aangemaakt'),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+        ),
       body: ResponsiveWrapper(
         maxWidth: ResponsiveConstants.formScreenMaxWidth,
         child: Container(
@@ -272,6 +280,7 @@ class SessionCreatedScreen extends ConsumerWidget {
             ),
           ),
         ),
+      ),
       ),
       ),
     );

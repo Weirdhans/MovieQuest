@@ -59,7 +59,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
     final isLoading = ref.watch(isLoadingProvider);
 
     return PopScope(
-      canPop: _currentStep == 0,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
 
@@ -68,6 +68,9 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
           setState(() {
             _currentStep--;
           });
+        } else {
+          // On first step, navigate back to home
+          Navigator.of(context).pop();
         }
       },
       child: Scaffold(
