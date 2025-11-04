@@ -3,6 +3,7 @@
 library;
 
 import 'dart:async';
+import 'dart:js_interop';
 import 'package:web/web.dart' as web;
 
 /// Callback type for handling browser back button events
@@ -10,12 +11,11 @@ typedef BrowserBackCallback = void Function();
 
 /// Browser history manager (web implementation using package:web)
 class BrowserHistoryManager {
+  BrowserHistoryManager._();
+
   /// Singleton instance
   static final BrowserHistoryManager instance = BrowserHistoryManager._();
 
-  BrowserHistoryManager._();
-
-  StreamSubscription<web.Event>? _popStateSubscription;
   BrowserBackCallback? _onBrowserBack;
 
   /// Initialize browser history listener
@@ -26,10 +26,12 @@ class BrowserHistoryManager {
     _onBrowserBack = onBrowserBack;
 
     // Listen to browser popstate events (back/forward buttons)
-    final window = web.window;
-    _popStateSubscription = window.onPopstate.listen((event) {
-      _onBrowserBack?.call();
-    });
+    web.window.addEventListener('popstate', _handlePopState.toJS);
+  }
+
+  /// Handle popstate event
+  void _handlePopState(web.Event event) {
+    _onBrowserBack?.call();
   }
 
   /// Update browser history state without adding new entry
@@ -53,10 +55,9 @@ class BrowserHistoryManager {
 
   /// Clean up listeners
   ///
-  /// Cancels the popstate subscription to prevent memory leaks.
+  /// Removes the popstate event listener to prevent memory leaks.
   void dispose() {
-    _popStateSubscription?.cancel();
-    _popStateSubscription = null;
+    web.window.removeEventListener('popstate', _handlePopState.toJS);
     _onBrowserBack = null;
   }
 }
