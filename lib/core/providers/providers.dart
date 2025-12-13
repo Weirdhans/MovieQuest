@@ -2,12 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shared/services/supabase_service.dart';
 import '../../shared/services/tmdb_service.dart';
 import '../../shared/services/utils_service.dart';
-import '../../shared/services/bgg_service.dart';
 import '../interfaces/i_supabase_service.dart';
 import '../interfaces/i_tmdb_service.dart';
 import '../interfaces/i_utils_service.dart';
-import '../interfaces/i_bgg_service.dart';
-import '../models/user_profile.dart';
 import '../utils/dev_log.dart';
 
 // ============================================
@@ -27,12 +24,6 @@ final tmdbServiceProvider = Provider<ITmdbService>((ref) {
 /// Utils Service Provider
 final utilsServiceProvider = Provider<IUtilsService>((ref) {
   return UtilsService();
-});
-
-/// BGG Service Provider (BoardGameGeek API)
-final bggServiceProvider = Provider<IBggService>((ref) {
-  final supabaseService = ref.watch(supabaseServiceProvider);
-  return BggService(supabaseService: supabaseService as SupabaseService);
 });
 
 // ============================================
@@ -252,29 +243,3 @@ final movieProvidersProvider = FutureProvider.family<List<Map<String, dynamic>>,
 // ============================================
 // BOARD GAME PROVIDERS
 // ============================================
-
-/// Current User Profile Provider
-/// Streams the current user's profile with BGG integration info
-final currentUserProfileProvider = StreamProvider<UserProfile?>((ref) async* {
-  final userId = await ref.watch(userIdProvider.future);
-  final supabaseService = ref.watch(supabaseServiceProvider) as SupabaseService;
-
-  // Fetch initial profile
-  final response = await supabaseService.supabase
-      .from('user_profiles')
-      .select()
-      .eq('id', userId)
-      .maybeSingle();
-
-  if (response != null) {
-    yield UserProfile.fromJson(response);
-  } else {
-    yield null;
-  }
-});
-
-/// Check if user needs BGG collection sync
-final needsCollectionSyncProvider = FutureProvider<bool>((ref) async {
-  final profile = await ref.watch(currentUserProfileProvider.future);
-  return profile?.needsSync ?? false;
-});
