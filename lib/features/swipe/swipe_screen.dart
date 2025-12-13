@@ -148,6 +148,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
       minYear: session['min_year'] as int?,
       maxYear: session['max_year'] as int?,
       sortBy: session['sort_by'] as String? ?? 'popularity.desc',
+      isChristmasMode: session['is_christmas_mode'] as bool? ?? false,
     );
 
     result.when(

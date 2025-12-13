@@ -152,12 +152,13 @@ class TmdbService extends BaseService implements ITmdbService {
     int? minYear,
     int? maxYear,
     String sortBy = 'popularity.desc',
+    bool isChristmasMode = false,
   }) async {
     return executeWithErrorHandling(
       () async {
-        // Check cache (v3: includes filter/sort options)
+        // Check cache (v4: includes filter/sort options + Christmas mode)
         final excludedKey = excludedGenres?.join(',') ?? '';
-        final cacheKey = 'v3-${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$minRating-$minYear-$maxYear-$sortBy-$page';
+        final cacheKey = 'v4-${providers.join(',')}-${genres.join(',')}-$maxCertification-$genreMatchMode-$excludedKey-$minRating-$minYear-$maxYear-$sortBy-$isChristmasMode-$page';
         if (_moviesCache.containsKey(cacheKey)) {
           devLog('Films geladen uit cache: $cacheKey');
           return _moviesCache[cacheKey]!;
@@ -215,6 +216,11 @@ class TmdbService extends BaseService implements ITmdbService {
         // Add sort option (skip if 'random' - will use popularity then shuffle)
         if (sortBy != 'random') {
           params['sort_by'] = sortBy;
+        }
+
+        // Add Christmas keyword filter
+        if (isChristmasMode) {
+          params['with_keywords'] = '${ChristmasKeywords.christmas}';
         }
 
         // Make API request
@@ -277,6 +283,7 @@ class TmdbService extends BaseService implements ITmdbService {
     List<String>? excludedGenres,
     String? sessionId,
     required int currentPage,
+    bool isChristmasMode = false,
   }) async {
     final nextPage = currentPage + 1;
     devLog('Prefetching pagina $nextPage...');
@@ -289,6 +296,7 @@ class TmdbService extends BaseService implements ITmdbService {
       excludedGenres: excludedGenres,
       sessionId: sessionId,
       page: nextPage,
+      isChristmasMode: isChristmasMode,
     );
   }
 

@@ -313,6 +313,11 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
 
         const SizedBox(height: 24),
 
+        // Christmas Mode Toggle
+        _buildChristmasToggle(),
+
+        const SizedBox(height: 24),
+
         // Genre Chips
         Wrap(
           spacing: 12,
@@ -701,6 +706,22 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
                   }
                 },
               ),
+
+              // Christmas Mode
+              if (ref.watch(christmasModeProvider)) ...[
+                const Divider(height: 32, color: Colors.grey),
+                _buildSummaryItem(
+                  icon: '🎄',
+                  title: 'Kerstfilms',
+                  value: 'Alleen kerstfilms worden getoond',
+                  onEdit: () {
+                    setState(() => _currentStep = 1);
+                    if (kIsWeb) {
+                      BrowserHistoryManager.instance.replaceState('step_1');
+                    }
+                  },
+                ),
+              ],
             ],
           ),
         ),
@@ -1014,6 +1035,96 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
     );
   }
 
+  Widget _buildChristmasToggle() {
+    final isChristmas = ref.watch(christmasModeProvider);
+    final now = DateTime.now();
+    final isHolidaySeason = now.month == 11 || now.month == 12; // Nov/Dec
+
+    return InkWell(
+      onTap: () {
+        ref.read(christmasModeProvider.notifier).state = !isChristmas;
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: isChristmas
+              ? const LinearGradient(
+                  colors: [
+                    Color(0xFFD32F2F), // Christmas Red
+                    Color(0xFF2E7D32), // Christmas Green
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isChristmas ? null : AppTheme.surfaceDark,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isChristmas
+                ? Colors.transparent
+                : (isHolidaySeason
+                    ? const Color(0xFFD32F2F) // Red border in holiday season
+                    : AppTheme.primaryGold.withValues(alpha: 0.3)),
+            width: isHolidaySeason && !isChristmas ? 2 : 1,
+          ),
+          boxShadow: isHolidaySeason && isChristmas
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFFD32F2F).withValues(alpha: 0.5),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          children: [
+            Text(
+              isChristmas ? '🎅' : '🎄',
+              style: TextStyle(
+                fontSize: isHolidaySeason ? 32 : 28, // Larger in holiday season
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Kerstfilms Mode',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isChristmas
+                        ? 'Alleen kerstfilms tonen'
+                        : 'Filter op kerstfilms toevoegen',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isChristmas
+                          ? Colors.white.withValues(alpha: 0.9)
+                          : Colors.grey.shade400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isChristmas ? Icons.check_circle : Icons.circle_outlined,
+              color: isChristmas ? Colors.white : AppTheme.primaryGold,
+              size: 28,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSegmentButton({
     required String label,
     required String value,
@@ -1154,6 +1265,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
     final selectedCertification = ref.read(selectedCertificationProvider);
     final requiredVotes = ref.read(requiredVotesProvider);
     final genreMatchMode = ref.read(genreMatchModeProvider);
+    final isChristmasMode = ref.read(christmasModeProvider);
     final hostName = _hostNameController.text.trim();
 
     ref.read(isLoadingProvider.notifier).state = true;
@@ -1179,6 +1291,7 @@ class _CreateSessionWizardState extends ConsumerState<CreateSessionWizard> {
         minYear: _minYear,
         maxYear: _maxYear,
         sortBy: _sortBy,
+        isChristmasMode: isChristmasMode,
       );
 
       await result.when(

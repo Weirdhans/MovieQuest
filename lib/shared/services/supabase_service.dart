@@ -15,6 +15,9 @@ class SupabaseService extends BaseService implements ISupabaseService {
   SupabaseService._();
   factory SupabaseService() => _instance;
 
+  /// Get the Supabase client instance
+  SupabaseClient get supabase => Supabase.instance.client;
+
   /// Initialize Supabase client
   static Future<void> init() async {
     try {
@@ -80,6 +83,7 @@ class SupabaseService extends BaseService implements ISupabaseService {
     int? minYear,
     int? maxYear,
     String? sortBy,
+    bool? isChristmasMode,
   }) async {
     return executeWithErrorHandling(
       () async {
@@ -111,6 +115,9 @@ class SupabaseService extends BaseService implements ISupabaseService {
         }
         if (sortBy != null) {
           sessionData['sort_by'] = sortBy;
+        }
+        if (isChristmasMode != null) {
+          sessionData['is_christmas_mode'] = isChristmasMode;
         }
 
         final response = await client.from('sessions').insert(sessionData).select().single();

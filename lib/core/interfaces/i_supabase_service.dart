@@ -17,6 +17,7 @@ abstract class ISupabaseService {
     int? minYear,
     int? maxYear,
     String? sortBy,
+    bool? isChristmasMode,
   });
   Future<Result<Map<String, dynamic>>> getSession(String sessionId);
   Future<Result<Map<String, dynamic>>> getSessionPreview(String sessionId);

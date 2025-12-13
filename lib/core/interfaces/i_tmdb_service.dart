@@ -14,6 +14,7 @@ abstract class ITmdbService {
     int? minYear,
     int? maxYear,
     String sortBy = 'popularity.desc',
+    bool isChristmasMode = false,
   });
 
   String getPosterUrl(String? posterPath, {String size = 'w500'});
@@ -26,6 +27,7 @@ abstract class ITmdbService {
     List<String>? excludedGenres,
     String? sessionId,
     required int currentPage,
+    bool isChristmasMode = false,
   });
 
   void clearCache();
