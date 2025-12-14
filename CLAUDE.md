@@ -184,17 +184,18 @@ The [SupabaseService](lib/shared/services/supabase_service.dart) is a singleton 
 The [TmdbService](lib/shared/services/tmdb_service.dart) handles movie data:
 
 **Key Features**:
-- **Advanced Filtering**: Supports streaming providers, genres, age ratings, minimum TMDB rating (1.0-10.0), and release year range (1888-current year)
+- **Advanced Filtering**: Supports streaming providers, genres, age ratings, minimum TMDB rating (1.0-10.0), release year range (1888-current year), and Christmas mode
+- **Christmas Mode**: Filters using TMDB keyword 207317 (~3,282 Christmas films)
 - **Flexible Sorting**: 8 sort options including popularity, rating, release date, title (A-Z/Z-A), and random
 - **Seeded Shuffle**: When "random" sort is selected, movies are shuffled using session ID as seed, ensuring all members see the same order
-- **Caching**: API responses and streaming provider data are cached to prevent duplicate calls
+- **Caching**: API responses and streaming provider data are cached to prevent duplicate calls (cache v4 includes Christmas mode)
 - **Discover API**: Fetches movies with all filter and sort parameters passed to TMDB
 - **Trailer Fetching**: Multi-language priority fallback (Dutch Official → English Official → Dutch Trailer → English Trailer → Teaser)
 - **Prefetching**: Next page can be prefetched for smooth UX
 - **Provider Badges**: Lazy loading of streaming provider logos per movie card
 
 **Methods**:
-- `fetchMovies()` - Fetch with filters (providers, genres, certification, rating, year range, sort), returns sorted/shuffled results
+- `fetchMovies()` - Fetch with filters (providers, genres, certification, rating, year range, sort, isChristmasMode), returns sorted/shuffled results
 - `fetchMovieProviders()` - Get streaming provider info for a specific movie (NL region, flatrate only)
 - `fetchMovieTrailer()` - Get YouTube trailer key with language fallback
 - `getMovieDetails()` - Fetch detailed movie info
@@ -204,10 +205,12 @@ The [TmdbService](lib/shared/services/tmdb_service.dart) handles movie data:
 ### Constants and Configuration
 
 [app_constants.dart](lib/core/constants/app_constants.dart) contains:
+
 - Streaming provider IDs (Netflix: `8`, Disney+: `337`, etc.)
 - Genre IDs (Action: `28`, Comedy: `35`, etc.)
 - Dutch age certification codes (`AL`, `6`, `9`, `12`, `16`)
 - TMDB API defaults (region: `NL`, language: `nl-NL`, min vote count: `100`)
+- Christmas keyword ID (`207317` for TMDB keyword filtering)
 
 ## Key Implementation Details
 
@@ -504,7 +507,14 @@ The following high-priority features have been implemented (as of 2025-01):
 5. ✅ **Sorteer functie voor jaargetal** (`UI`, `UX`, `TMDB`)
    - Included in sort dropdown as "Verschijningsdatum (nieuw-oud)" and "Verschijningsdatum (oud-nieuw)"
 
-**Database Changes**: Added 4 new columns to `sessions` table: `min_rating`, `min_year`, `max_year`, `sort_by` (all nullable for backward compatibility).
+6. ✅ **Christmas movies filter met seasonal prominence** (`UI`, `UX`, `TMDB`, `Backend`)
+   - Christmas toggle in Step 2 of wizard with festive styling
+   - Red-to-green gradient when active, seasonal prominence in Nov/Dec
+   - TMDB keyword filtering (207317 = ~3,282 Christmas films)
+   - Summary display shows Christmas mode status
+   - Deployed: 2025-01-21 via PR workflow
+
+**Database Changes**: Added 5 new columns to `sessions` table: `min_rating`, `min_year`, `max_year`, `sort_by`, `is_christmas_mode` (all nullable for backward compatibility).
 
 ### Workflow Guidelines
 
