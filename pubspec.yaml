@@ -21,6 +21,7 @@ dependencies:
   # HTTP & API
   http: ^1.2.2
   dio: ^5.7.0
+  xml: ^6.5.0  # XML parsing for BoardGameGeek API
 
   # Swipe Cards - BEST choice for swipe functionality
   appinio_swiper: ^2.1.1

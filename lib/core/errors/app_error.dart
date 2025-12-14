@@ -43,6 +43,18 @@ abstract class AppError implements Exception {
     StackTrace? stackTrace,
   }) = UnknownError;
 
+  factory AppError.timeout({
+    required String message,
+    String? code,
+    dynamic originalError,
+  }) = TimeoutError;
+
+  factory AppError.parsing({
+    required String message,
+    String? code,
+    dynamic originalError,
+  }) = ParsingError;
+
   final String message;
   final String? code;
   final dynamic originalError;
@@ -122,4 +134,28 @@ class UnknownError extends AppError {
 
   @override
   String toString() => 'UnknownError: $message';
+}
+
+/// Timeout errors (API requests, network operations)
+class TimeoutError extends AppError {
+  const TimeoutError({
+    required super.message,
+    super.code,
+    super.originalError,
+  });
+
+  @override
+  String toString() => 'TimeoutError: $message';
+}
+
+/// Parsing errors (XML, JSON, data format issues)
+class ParsingError extends AppError {
+  const ParsingError({
+    required super.message,
+    super.code,
+    super.originalError,
+  });
+
+  @override
+  String toString() => 'ParsingError: $message';
 }
