@@ -1,0 +1,41 @@
+name: Deploy to Production (Manual Approval)
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      deployment_id:
+        description: 'Vercel Deployment ID to promote'
+        required: true
+        type: string
+
+jobs:
+  approve:
+    name: Request Production Deployment Approval
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://movie-quests.vercel.app
+    steps:
+      - name: Manual Approval Required
+        run: echo "Deployment approved for production"
+
+  deploy:
+    name: Promote to Production
+    runs-on: ubuntu-latest
+    needs: approve
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: beta
+
+      - name: Merge beta → main
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout main
+          git merge beta --no-ff -m "chore: promote beta to production"
+          git push origin main
+
+      - name: Notify Success
+        run: echo "✅ Production deployment started via Vercel"
